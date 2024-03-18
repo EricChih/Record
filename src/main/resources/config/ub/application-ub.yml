@@ -1,0 +1,30 @@
+ub:
+    security:
+        password:
+            encode-key: ub2022ubgir
+        token: 473daaa3-bff0-4171-9b27-3f53f5e1716e
+    datasource:
+        disk:
+            withinYear-folder: D:\FinalBackup\
+            moreThanYear-folder: D:\HisRec\
+            overdueDeleted-folder: D:\DelRec\
+            foreverSave-folder: D:\ForeverRec\
+            scheduleLog-folder: D:\ScheduleLog\
+    region:
+        site:
+            taipei:
+                url: http://127.0.0.1:8082/login
+                name: 台北
+                id: 002
+            kaohsiung:
+                url: http://172.30.104.85:8082/login
+                name: 高雄
+                id: 007
+    view:
+        page:
+            max-size: 5000
+    schedule:
+        cron:
+            expression:
+                delLogTrack: 0 0 4 * * ?
+                loadFromExternalDb: 0 0 4 * * ?

@@ -1,0 +1,9 @@
+ .whole-content {
+        max-width: 1520px;
+        margin: 0 auto;
+    }
+
+ .multiselect-container .dropdown-item.active {
+     background: transparent;
+     color: black;
+ }

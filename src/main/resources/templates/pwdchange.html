@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <th:block th:include="headfragment :: common-head" />
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <base href="/"/>
+    <title>密碼變更頁</title>
+    <!-- Custom fonts for this template -->
+    <link th:href="@{/assets/vendor/fontawesome-free/css/all.min.css}" rel="stylesheet" type="text/css">
+    <!-- Custom styles for this template -->
+    <link th:href="@{/assets/css/sb-admin-2.min.css}" rel="stylesheet">
+    <!-- Custom styles for this page -->
+    <link th:href="@{/assets/vendor/datatables/dataTables.bootstrap4.min.css}" rel="stylesheet">
+</head>
+<body id="page-top" class="bg-light">
+<div id="wrapper" class="whole-content">
+    <ul th:include="sidebar::sidebar" class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion"
+        id="accordionSidebar" th:if="${isSidebarVisible}"></ul>
+    <div id="content-wrapper" class="d-flex flex-column">
+        <div id="content">
+            <nav th:include="header::header" class="navbar navbar-expand topbar mb-4 static-top shadow bg-dark">
+            </nav>
+            <div class="container-fluid">
+                <div class="card mb-4">
+                    <div class="card-header py-3 bg-primary">
+                        <h6 class="m-0 font-weight-bold text-white">密碼變更</h6>
+                    </div>
+                    <form class="pwdchange" action="#" th:action="@{/pwd/update}" method="post">
+                        <div class="card-body">
+                            <div class="form-group row">
+                                <div class="col-sm-4 mb-2 mb-sm-0 input-size">
+                                    <label class="small mb-2" style="color:#007979; font-weight:bold;">序號</label>
+                                    <input type="text" class="form-control form-control-user" id="idDisID"
+                                           th:value="${loginuser.getID()}" disabled/>
+                                    <!--                                    <input type="hidden" name="ID" th:value="${loginuser.getID()}"/>-->
+                                </div>
+                                <div class="col-sm-4 mb-2 mb-sm-0">
+                                    <label class="small mb-2" style="color:#007979; font-weight:bold;">人員ID</label>
+                                    <input type="text" class="form-control form-control-user" id="disName"
+                                           th:value="${loginuser.getName()}" disabled/>
+                                    <!--                                    <input type="hidden" name="Name" th:value="${loginuser.getName()}"/>-->
+                                </div>
+                                <div class="col-sm-4 mb-2 mb-sm-0">
+                                    <label class="small mb-2" style="color:#007979; font-weight:bold;"
+                                    >姓名</label>
+                                    <input type="text" class="form-control form-control-user" id="disFullName"
+                                           th:value="${loginuser.getLastName()}+' '+${loginuser.getFirstName()}"
+                                           disabled/>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <div class="col-sm-4 mb-2 mb-sm-0">
+                                    <label class="small mb-2" style="color:#007979; font-weight:bold;" for="firstPwd">新密碼</label>
+                                    <input  type="password" class="form-control form-control-user" id="firstPwd"
+                                           autofocus name="firstPwd" />
+                                    <span id="firstErrorSpan" style="color: red; font-family: DFKai-sb"></span>
+                                </div>
+                                <div class="col-sm-4 mb-2 mb-sm-0">
+                                    <label class="small mb-2" style="color:#007979; font-weight:bold;" for="secondPwd">確認新密碼</label>
+                                    <input type="password" class="form-control form-control-user" id="secondPwd"
+                                           name="secondPwd" disabled />
+                                    <span id="secondErrorSpan" style="color: red; font-family: DFKai-sb"></span>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <div class="col-sm-4 mb-2 mb-sm-0">
+                                    <input type="submit" id="mybtn" disabled="disabled"
+                                           class="btn btn-primary justify-content-right shadow-sm mr-2 px-4"
+                                           value="儲存" onclick="passok()"/>
+                                    <span id="message" th:text="${errmsg} "
+                                          style="color: red; font-family: DFKai-sb"></span>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <div class="col-sm-8 mb-2 mb-sm-0">
+                                    <br/>
+                                    <label class="small mb-1"
+                                           style="color:#007979; font-weight:bold;">系統安全性設定說明:</label>
+                                </div>
+                                <div class="col-sm-8 mb-2 mb-sm-0">
+                                    <label class="small mb-1" style="color:#5c5c5c; font-weight:bold;">
+                                        * 密碼長度需設定大於等於6碼</label>
+                                </div>
+                                <div class="col-sm-8 mb-2 mb-sm-0">
+                                    <label class="small mb-1" style="color:#5c5c5c; font-weight:bold;">
+                                        * 密碼內容須為英文及數字夾雜，英文有大小寫之分</label>
+                                </div>
+                                <div class="col-sm-8 mb-2 mb-sm-0">
+                                    <label class="small mb-1" style="color:#5c5c5c; font-weight:bold;">*
+                                        密碼不得與登入帳號相同</label>
+                                </div>
+                                <div class="col-sm-8 mb-2 mb-sm-0">
+                                    <label class="small mb-1" style="color:#5c5c5c; font-weight:bold;">* 密碼設定為錯誤
+                                        3 次以上,超過即鎖定該帳號</label>
+                                </div>
+                                <div class="col-sm-8 mb-2 mb-sm-0">
+                                    <label class="small mb-1" style="color:#5c5c5c; font-weight:bold;">* 密碼設定為不可與前
+                                        3 代重複</label>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <footer th:include="footer::footer" class="sticky-footer bg-white">
+        </footer>
+    </div>
+</div>
+
+<a class="scroll-to-top rounded" href="#page-top">
+    <i class="fas fa-angle-up"></i>
+</a>
+
+<!-- Bootstrap core JavaScript-->
+<script th:src="@{/assets/vendor/jquery/jquery.min.js}" type="text/javascript"></script>
+<script th:src="@{/assets/vendor/bootstrap/js/bootstrap.bundle.min.js}" type="text/javascript"></script>
+<!-- Core plugin JavaScript-->
+<script th:src="@{/assets/vendor/jquery-easing/jquery.easing.min.js}" type="text/javascript"></script>
+<!-- Custom scripts for all pages-->
+<script th:src="@{/assets/js/sb-admin-2.min.js}" type="text/javascript"></script>
+<!-- Page level plugins -->
+<script th:src="@{/assets/vendor/datatables/jquery.dataTables.min.js}" type="text/javascript"></script>
+<script th:src="@{/assets/vendor/datatables/dataTables.bootstrap4.min.js}" type="text/javascript"></script>
+<!-- Page level custom scripts -->
+<script th:src="@{/assets/js/demo/datatables-demo.js}" type="text/javascript"></script>
+
+<script type="text/javascript" defer="defer" th:nonce="${cspNonce}">
+    //禁止使用者返回到前一個頁面
+    window.history.pushState(null, null, document.URL);
+    window.addEventListener('popstate', function () {
+        window.history.pushState(null, null, document.URL);
+    });
+
+    let firstPwd = document.getElementById("firstPwd");
+    let secondPwd = document.getElementById("secondPwd");
+    firstPwd.addEventListener('input', isPwd);
+    secondPwd.addEventListener('input', isCom)
+	//密碼校驗
+    function isPwd(){
+        console.log('???')
+        var text= document.getElementById("firstPwd").value;
+            if(text){
+                document.getElementById("firstErrorSpan").textContent = "";
+                document.getElementById("secondPwd").disabled=false;
+                return true;
+            }
+	};
+
+    //确认密码
+    function isCom(){
+    	 var text1= document.getElementById("firstPwd").value;
+         var text2= document.getElementById("secondPwd").value;
+        if (text2 === text1){
+            document.getElementById("secondErrorSpan").textContent = "";
+            document.getElementById("mybtn").disabled=false;
+            return true;
+        }
+        else {
+            document.getElementById("secondErrorSpan").textContent = "兩次輸入密碼不一致";
+            document.getElementById("mybtn").disabled=true;
+            return false;
+        }
+    }
+
+    var urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.has('msg')) {
+		switch(urlParams.get('msg')) {
+		  case 'mismatch':
+			showMsg("當前密碼不符合目前系統密碼設定，請更改密碼");
+			break;
+          case 'expired':
+			showMsg("當前密碼已到期，請更改密碼");
+			break;
+          case 'pwd_as_default':
+            showMsg("此為預設密碼，請先執行密碼更改");
+            break;
+		  default:
+			showMsg("請更改密碼");
+		}
+	}
+</script>
+</body>
+</html>

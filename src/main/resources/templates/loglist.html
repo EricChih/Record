@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <th:block th:include="headfragment :: common-head" />
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <base href="/"/>
+    <title>操作軌跡頁</title>
+    <!-- Custom fonts for this template -->
+    <link th:href="@{assets/vendor/fontawesome-free/css/all.min.css}" rel="stylesheet" type="text/css">
+    <!-- Custom styles for this template -->
+    <link th:href="@{assets/css/sb-admin-2.min.css}" rel="stylesheet">
+    <!-- Custom styles for this page -->
+    <link th:href="@{assets/vendor/datatables/dataTables.bootstrap4.min.css}" rel="stylesheet">
+    <!-- flatpickr calendar for this page -->
+    <link th:href="@{/assets/vendor/flatpickr-gh-pages/flatpickr.min.css}" rel="stylesheet" type="text/css">
+</head>
+
+<body id="page-top" class="bg-light">
+<div id="wrapper" class="whole-content">
+    <ul th:include="sidebar::sidebar" class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion"
+        id="accordionSidebar">
+    </ul>
+
+    <div id="content-wrapper" class="d-flex flex-column">
+        <div id="content">
+            <nav th:include="header::header" class="navbar navbar-expand topbar mb-1 static-top shadow bg-dark">
+            </nav>
+            <div class="container-fluid">
+                <div class="card mb-4">
+                    <div class="card-header py-3 bg-primary">
+                        <h6 class="m-0 font-weight-bold text-white">操作軌跡
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                            <form action="#" th:action="@{/log/search}" th:object="${ubgirlog}" method="post" id="logSearchForm">
+                            <div class="form-group row">
+                                <div class="col-sm-4 mb-2 mb-sm-0">
+                                    <label class="small mb-1" style="color:#007979; font-weight:bold;"
+                                           for="searchStartTime">起始時間</label>
+                                    <input class="form-control calendarStart flatpickrbegin" style="width:100%"
+                                           id="searchStartTime" name="Starttime" required
+                                           th:value="${searchrec != null ? searchrec.getStarttime() : ''}"
+                                    />
+                                </div>
+                                <div class="col-sm-4">
+                                    <label class="small mb-1" style="color:#007979; font-weight:bold;"
+                                           for="searchEndTime">結束時間</label>
+                                    <input class="form-control calendarEnd flatpickrend" style="width:100%"
+                                           id="searchEndTime" name="Endtime" required
+                                           th:value="${searchrec != null ? searchrec.getEndtime() : ''}"
+                                    />
+                                </div>
+                                <div class="col-sm-4">
+                                    <label class="small mb-1" style="color:#007979; font-weight:bold;"
+                                           for="searchActionUser">執行人員(帳號)</label>
+                                    <input type="text" class="form-control form-control-user" maxlength="35"
+                                           id="searchActionUser" name="ActionUser"
+                                           th:value="${searchrec != null ? searchrec.getActionUser() : ''}"
+                                    />
+                                </div>
+                                <div class="col-sm-4">
+                                    <label class="small mb-1" style="color:#007979; font-weight:bold;"
+                                           for="searchFunctionName">系統功能</label>
+                                    <span th:switch="${loginuser.getRole()}">
+                                        <span th:case="'admin'">
+
+                                            <select class="form-control form-control-user" id="AdminSearchFunctionName"
+                                                name="FunctionName">
+                                                <option value="">請選擇</option>
+                                            <th:block th:each="admmodule: ${admModulemap}">
+                                            	<option th:value="${admmodule.key}"
+                                                        th:text="${admmodule.value}"
+                                                        th:selected="${searchrec != null && (searchrec.getFunctionName() == admmodule.key)}"
+                                                />
+                                            </th:block>
+                                        </select>
+                                        </span>
+                                        <span th:case="'manager'">
+                                        <select class="form-control form-control-user" id="MgrSearchFunctionName"
+                                                name="FunctionName">
+                                            <option value="">請選擇</option>
+                                            <th:block th:each="mgrmodule: ${mgrModulemap}">
+                                            	<option th:value="${mgrmodule.key}"
+                                                        th:text="${mgrmodule.value}"
+                                                        th:selected="${searchrec != null && (searchrec.getFunctionName() == mgrmodule.key)}"
+                                                />
+                                            </th:block>
+                                        </select>
+                                        </span>
+                                        <span th:case="'supervisor'"> 
+                                        <select class="form-control form-control-user" id="SupSearchFunctionName"
+                                                name="FunctionName">
+                                            <option value="">請選擇</option>
+                                            <th:block th:each="supmodule: ${supModulemap}">
+                                            	<option th:value="${supmodule.key}"
+                                                        th:text="${supmodule.value}"
+                                                        th:selected="${searchrec != null && (searchrec.getFunctionName() == supmodule.key)}"
+                                                />
+                                            </th:block> 	
+                                        </select>
+                                        </span>
+                                        <span th:case="*"> 
+                                        <select class="form-control form-control-user" id="searchFunctionName"
+                                                name="FunctionName">
+                                            <option value="">請選擇</option>
+                                            <th:block th:each="module: ${modulemap}">
+                                            	<option th:value="${module.key}"
+                                                        th:text="${module.value}"
+                                                        th:selected="${searchrec != null && (searchrec.getFunctionName() == module.key)}"
+                                                />
+                                            </th:block>
+                                        </select>
+                                        </span>
+                                        </span>
+                                </div>
+                                <div class="col-sm-4 mb-2 mb-sm-0">
+                                    <label class="small mb-1" style="color:#007979; font-weight:bold;"
+                                           for="searchActionType">行為</label>
+                                    <span th:switch="${loginuser.getRole()}">
+                                        <span th:case="'admin'"> 
+                                        <select class="form-control form-control-user" id="AdminSearchActionType"
+                                                name="ActionType">
+                                            <option value="">請選擇</option>
+                                            <th:block th:each="admact: ${admActmap}">
+                                            	<option th:value="${admact.key}"
+                                                        th:text="${admact.value}"
+                                                        th:selected="${searchrec != null && (searchrec.getActionType() == admact.key)}"
+                                                />
+                                            </th:block>
+                                        </select>
+                                        </span>
+                                        <span th:case="'manager'"> 
+                                        <select class="form-control form-control-user" id="MgrSearchActionType"
+                                                name="ActionType">
+                                            <option value="">請選擇</option>
+                                            <th:block th:each="mgract: ${mgrActmap}">
+                                            	<option th:value="${mgract.key}"
+                                                        th:text="${mgract.value}"
+                                                        th:selected="${searchrec != null && (searchrec.getActionType() == mgract.key)}"
+                                                />
+                                            </th:block>
+                                        </select>
+                                        </span>
+                                        <span th:case="'supervisor'"> 
+                                        <select class="form-control form-control-user" id="SupSearchActionType"
+                                                name="ActionType">
+                                            <option value="">請選擇</option>
+                                            <th:block th:each="supact: ${supActmap}">
+                                            	<option th:value="${supact.key}"
+                                                        th:text="${supact.value}"
+                                                        th:selected="${searchrec != null && (searchrec.getActionType() == supact.key)}"
+                                                />
+                                            </th:block>
+                                        </select>
+                                        </span>
+                                        <span th:case="*"> 
+                                        <select class="form-control form-control-user" id="searchActionType"
+                                                name="ActionType">
+                                            <option value="">請選擇</option>
+                                            <th:block th:each="act: ${actmap}">
+                                            	<option th:value="${act.key}"
+                                                        th:text="${act.value}"
+                                                        th:selected="${searchrec != null && (searchrec.getActionType() == act.key)}"
+                                                />
+                                            </th:block>	  							
+                                        </select>
+                                        </span>
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="d-sm-flex align-items-center justify-content-center mb-2">
+                                <button id="resetBtn" type="button" class="btn btn-primary shadow-sm mr-2 px-4 d-sm-inline-block"
+                                        >重設
+                                </button>
+                                <button id="submitBtn" type="submit" class="btn btn-primary shadow-sm mr-2 px-4 d-sm-inline-block"
+                                        >查詢
+                                </button>
+                            </div>
+                        </form>
+                        <hr>
+                        <div class="table-responsive" style="position: relative;">
+                            <button id="exportBtn"  class="btn btn-primary shadow-sm p-1 mb-2"
+                                    style="position: absolute; left: 150px; top: 0px; z-index: 999;">
+                                匯出Excel
+                            </button>
+                            <table class="table table-bordered" id="dataTable_noSearch_first" width="100%"
+                                   cellspacing="0">
+                                <thead style="white-space: nowrap">
+                                <tr>
+                                    <th>執行時間</th>
+                                    <th>執行人員(帳號)</th>
+                                    <th>系統功能</th>
+                                    <th>行為</th>
+                                    <th>相關資料</th>
+                                </tr>
+                                </thead>
+                                <tbody style="white-space: nowrap">
+                                <th:block th:each="logs : ${logs}">
+                                    <tr>
+                                        <td th:text="${#strings.substring(logs.getActionTime(), 0, #strings.length(logs.getActionTime()))}">...</td>
+                                        <td th:text="${logs.getActionUser()}">...</td>
+                                        <td th:text="${logs.getFunctionNameCN()}">...</td>
+                                        <td th:text="${logs.getActionTypeCN()}">...</td>
+                                        <td th:text="${logs.getInfo()}">...</td>
+                                    </tr>
+                                </th:block>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <footer th:include="footer::footer" class="sticky-footer bg-white">
+        </footer>
+    </div>
+</div>
+
+<a class="scroll-to-top rounded" href="#page-top">
+    <i class="fas fa-angle-up"></i>
+</a>
+
+<!-- Bootstrap core JavaScript-->
+<script th:src="@{/assets/vendor/jquery/jquery.min.js}" type="text/javascript"></script>
+<script th:src="@{/assets/vendor/bootstrap/js/bootstrap.bundle.min.js}" type="text/javascript"></script>
+<!-- Core plugin JavaScript-->
+<script th:src="@{/assets/vendor/jquery-easing/jquery.easing.min.js}" type="text/javascript"></script>
+<!-- Custom scripts for all pages-->
+<script th:src="@{/assets/js/sb-admin-2.min.js}" type="text/javascript"></script>
+<!-- Page level plugins -->
+<script th:src="@{/assets/vendor/datatables/jquery.dataTables.min.js}" type="text/javascript"></script>
+<script th:src="@{/assets/vendor/datatables/dataTables.bootstrap4.min.js}" type="text/javascript"></script>
+<!-- Page level custom scripts -->
+<script th:src="@{/assets/js/demo/datatables-demo.js}" type="text/javascript"></script>
+<!-- flatpickr calendar scripts -->
+<script th:src="@{/assets/vendor/flatpickr-gh-pages/flatpickr.min.js}" type="text/javascript"></script>
+<!-- Export Table to Excel tool -->
+<script th:src="@{/assets/vendor/sheetjs/dist/xlsx.full.min.js}" type="text/javascript"></script>
+</body>
+</html>
+
+<script th:nonce="${cspNonce}">
+    //處理頁面default 顯示時間
+    window.onload = function(){
+        //若使用者沒有輸入
+        if(document.getElementById("searchStartTime").value=="")
+            setCurrDate(); //設定為當日凌晨
+        if(document.getElementById("searchEndTime").value =="")
+            setCurrTime(); //設定為當前時間
+    }
+
+    //設定目前時間
+    function setCurrTime(){
+      // 目前時間
+      var localDate = new Date().toLocaleDateString('zh-TW').split( '/' ).join( '-' );
+      var localtime = new Date().toLocaleTimeString('zh-TW', {hour:'numeric', minute: 'numeric', second:'numeric', hourCycle: 'h23'});
+      var currDateTime = localDate + " "+ localtime; //當天+當時
+      document.getElementById('searchEndTime').value = currDateTime;
+    }
+    
+    //設定目前日期
+    function setCurrDate(){
+       //當日的凌晨00:00:00
+       var localDate = new Date().toLocaleDateString('zh-TW').split( '/' ).join( '-' );
+       var currDate= localDate + " 00:00:00";
+       document.getElementById('searchStartTime').value = currDate;
+    }
+       
+    function setCurrMonth(){
+       //本月的1號
+       var dt = new Date();
+       var currMonthFirstDay = dt.getFullYear()+"-"+ (dt.getUTCMonth()+1) + "-01 00:00:00";
+       document.getElementById('queryMonthFirstDay').value = currMonthFirstDay;
+    }
+
+    let endOfDay =  new Date();
+    endOfDay.setHours(23,59,59,999);
+    //啟動本頁 Calendar flatpickr 模組, 含關閉時確認輸入的起迄區間
+	 $(".calendarStart").flatpickr({
+		dateFormat: "Y-m-d H:i:S",
+		time_24hr: true,
+		enableTime: true,
+		minuteIncrement: 1,
+        maxDate: endOfDay,
+        allowInput: true,
+        onReady() {
+            this.showTimeInput = true
+        },
+        onOpen(selectedDates, dateStr, instance) {
+            instance.setDate(dateStr, true)
+        }
+	});
+     $(".calendarEnd").flatpickr({
+        dateFormat: "Y-m-d H:i:S",
+        time_24hr: true,
+        enableTime: true,
+        minuteIncrement: 1,
+        maxDate: endOfDay,
+        allowInput: true,
+        onReady() { this.showTimeInput = true },
+         onOpen(selectedDates, dateStr, instance) {
+             instance.setDate(dateStr, true)
+         }
+     });
+
+    let logSearchForm = document.getElementById("logSearchForm");
+    logSearchForm.addEventListener("submit", function(e){
+        e.preventDefault();
+        if(checkDateRange()){
+            this.submit();
+        }else {
+            return false;
+        }
+    });
+    //檢查選取區間
+    function checkDateRange(){
+    	var rangeDay = 31;
+    	var startTime = new Date($('.flatpickrbegin').val());
+    	var endTime = new Date($('.flatpickrend').val());
+    	if(startTime > endTime){
+    		showMsg('起始時間不可晚於結束時間');
+    		return false;
+    	}
+
+    	startTime.setDate(startTime.getDate() + rangeDay);
+    	if(startTime < endTime){
+    		showMsg('起訖時間必須小於' + rangeDay + '天');
+    		return false;
+    	}
+    	return true;
+  	}
+
+      let exportBtn = document.getElementById("exportBtn");
+    exportBtn.addEventListener('click', function(){
+        ExportToExcel('xlsx');
+    })
+    function ExportToExcel(type, fn, dl) {
+        var maxRow = 5000;
+        var localDate = new Date().toLocaleDateString('zh-TW').split( '/' ).join( '-' );
+        var localtime = new Date().toLocaleTimeString('zh-TW', {hour12: false});
+        var currDateTime = localDate + "-"+ localtime; //當天+當時
+        var filename = "ubgir-loglist-"+currDateTime + '.xlsx';
+        //先換成不分頁datatable抓全部資料
+        var originalData = $('#dataTable_noSearch_first').DataTable({
+            destroy:true,
+            paging: false
+        });
+        var elt =document.getElementById('dataTable_noSearch_first');
+        var wb = XLSX.utils.table_to_book(elt, { sheetRows:maxRow, sheet: "sheetOne", raw: true});
+        //讓畫面換回來原本分頁的datatable
+        originalData = $('#dataTable_noSearch_first').DataTable({
+            destroy:true,
+            searching: false,
+            paging: true
+        });
+        return dl ?
+            XLSX.write(wb, { bookType: type, bookSST: true, type: 'base64'}) :
+            XLSX.writeFile(wb, fn || (filename));
+    }
+
+    let resetBtn = document.getElementById("resetBtn");
+    resetBtn.addEventListener("click", searchFormReset);
+    function searchFormReset(){
+       document.getElementById("logSearchForm").reset();
+       document.getElementById("searchActionUser").value="";
+       document.querySelector('select[name="FunctionName"]').value="";
+       document.querySelector('select[name="ActionType"]').value="";
+
+       setCurrDate();
+       setCurrTime(); 
+    }
+</script>

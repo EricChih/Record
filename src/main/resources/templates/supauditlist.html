@@ -1,0 +1,1844 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW" xmlns:th="http://www.thymeleaf.org" xmlns="http://www.w3.org/1999/html">
+
+<head>
+    <th:block th:include="headfragment :: common-head"/>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <base href="/"/>
+
+    <title>調聽權限設定</title>
+
+    <!-- Custom fonts for this template -->
+    <link th:href="@{/assets/vendor/fontawesome-free/css/all.min.css}" rel="stylesheet" type="text/css"/>
+
+    <!-- Custom styles for this template -->
+    <link th:href="@{/assets/css/sb-admin-2.min.css}" rel="stylesheet" type="text/css"/>
+
+    <!-- Custom styles for this page -->
+    <link th:href="@{/assets/vendor/datatables/dataTables.bootstrap4.min.css}" rel="stylesheet" type="text/css"/>
+
+    <!-- Pro style -->
+    <link th:href="@{/assets/css/styles.css}" rel="stylesheet" type="text/css"/>
+
+    <link th:href="@{/assets/vendor/flatpickr-gh-pages/flatpickr.min.css}" rel="stylesheet" type="text/css">
+</head>
+
+<body id="page-top" class="bg-light">
+
+<!-- Page Wrapper -->
+<div id="wrapper" class="whole-content">
+
+    <!-- Begin: Sidebar -->
+    <ul th:include="sidebar::sidebar" class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion"
+        id="accordionSidebar">
+    </ul>
+    <!-- End: Sidebar -->
+
+    <!-- Content Wrapper -->
+    <div id="content-wrapper" class="d-flex flex-column">
+
+        <!-- Main Content -->
+        <div id="content">
+
+            <!-- Begin: Topbar Header -->
+            <nav th:include="header::header" class="navbar navbar-expand topbar mb-1 static-top shadow bg-dark">
+            </nav>
+            <!-- End: Topbar Header -->
+
+            <!-- Begin Page Content -->
+            <div class="container-fluid">
+
+                <!-- Begin Agent Audit Selection  -->
+                <div id="layoutSidenav_content">
+                    <main>
+                        <!-- Main page content-->
+                        <div class="container-xl px-4 mt-4">
+                            <!-- Account page navigation-->
+                            <nav class="nav nav-borders">
+                                <a class="nav-link active" href="account-billing.html"><span
+                                        style="color:#007979; font-weight:bold;">調聽權限設定</span></a>
+                                <!--
+                                <a class="nav-link" href="account-security.html">Security</a>
+                                <a class="nav-link" href="account-notifications.html">Notifications</a>
+                                -->
+                            </nav>
+                            <hr class="mt-0 mb-4"/>
+                            <div class="row">
+
+                                <div class="col-lg-4 mb-4">
+                                    <!-- Billing card 1-->
+                                    <div class="card h-100 border-start-lg border-start-primary">
+                                        <div class="card-body">
+                                            <div class="h3">部門/科組</div>
+
+                                            <div class="dropdown">
+                                                <button class="btn btn-primary dropdown-toggle" id="dropdownNoAnimation"
+                                                        type="button"
+                                                        data-bs-toggle="dropdown" aria-haspopup="true"
+                                                        aria-expanded="false">
+                                                    <span th:text="${currDepName !=null}? ${currDepName}:'請選擇'"/>
+                                                </button>
+                                                <div class="dropdown-menu" aria-labelledby="dropdownNoAnimation">
+                                                    <th:block th:each="dep: ${depmap}">
+                                                        <a class="dropdown-item"
+                                                           th:href="@{'/supaudit/getagent/'+${dep.key}}"
+                                                           th:text="${dep.value}"></a>
+                                                    </th:block>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-4 mb-4">
+                                    <!-- Billing card 2-->
+                                    <div class="card h-100 border-start-lg border-start-primary">
+                                        <div class="card-body">
+                                            <div class="h3">Supervisor</div>
+
+                                            <div class="dropdown">
+                                                <button class="btn btn-primary dropdown-toggle" id="dropdownNoAnimation"
+                                                        type="button"
+                                                        data-bs-toggle="dropdown" aria-haspopup="true"
+                                                        aria-expanded="false">
+                                                    <span th:text="${currsup !=null}? ${currsup}:'請選擇'"/>
+                                                </button>
+                                                <div class="dropdown-menu" aria-labelledby="dropdownNoAnimation">
+                                                    <th:block th:each="agents : ${agentlist}">
+                                                        <a class="dropdown-item"
+                                                           th:href="@{'/supaudit/getaudit/'+${agents.getID()}}"
+                                                           th:text="${agents.getName()} + ' ' + ${agents.getLastName()}+${agents.getFirstName()}"></a>
+                                                    </th:block>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Begin: 可調聽AgentID -->
+                            <div class="card card-header-actions mb-4">
+                                <div class="card-header h4" style="color:#007979; font-weight:bold;">
+                                    可調聽AgentID<div>總共<span id="agentCount" style="color:#007979; font-weight:bold;" ></span>筆</div>
+                                    <button class="btn btn-sm btn-primary" type="button" data-bs-toggle="modal"
+                                            data-bs-target="#syncAgentID">同步 AgentID
+                                    </button>
+                                    <button class="btn btn-sm btn-primary" type="button" data-bs-toggle="modal"
+                                            data-bs-target="#addAuditAgentIDModal">新增 AgentID
+                                    </button>
+                                    <button class="btn btn-sm btn-primary" type="button"
+                                            data-bs-toggle="modal" data-bs-target="#" id="agentDLbtn"
+                                            name="DLbtn" >設定權限
+                                    </button>
+                                    <button class="badge bg-danger" type="button" id="openDelAgentDialog"
+                                            data-bs-toggle="modal" data-bs-target="#"
+                                            >刪除
+                                    </button>
+                                </div>
+                                <div class="card-body p-0">
+                                    <!-- Billing history table-->
+                                    <div class="table-responsive table-billing-history">
+                                        <table id="agentIDtable" class="table mb-0">
+                                            <thead>
+                                            <tr>
+                                                <th class="border-gray-200" scope="col">編輯</th>
+                                                <th class="border-gray-200" scope="col">AgentID</th>
+                                                <th class="border-gray-200" scope="col">錄音平台登入帳號</th>
+                                                <th class="border-gray-200" scope="col">調聽起始時間</th>
+                                                <th class="border-gray-200" scope="col">調聽結束時間</th>
+                                                <th><input type="checkbox" id="select_all_agdl"/>下載音檔權限</th>
+                                                <th><input type="checkbox" id="select_all_agrec"/>設定永久音檔權限</th>
+                                                <th><input type="checkbox" id="select_all_AgentID"/>刪除</th>
+                                            </tr>
+                                            </thead>
+                                            <tbody id="agentIDtbody">
+                                            <th:block th:each="agentAudit : ${agentAuditList}">
+                                                <tr>
+                                                    <td>
+                                                        <a href="#"
+                                                           th:attr="data-id=${agentAudit.getAbleAgentID()},data-name=${agentAudit.getUserName()}"
+                                                           class="updateAuditAgentIDOpenBtn btn btn-warning btn-circle btn-sm"
+                                                           type="button" data-bs-toggle="modal"
+                                                           data-bs-target="#upAgentModal">
+                                                            <i class="fas fa-edit"></i>
+                                                        </a>
+                                                    </td>
+                                                    <td th:text="${agentAudit.getAbleAgentID()}"
+                                                        th:value="${agentAudit.getAbleAgentID()}">...
+                                                    </td>
+                                                    <td th:text="${agentAudit.getUserName()}"
+                                                        th:value="${agentAudit.getUserName()}">...
+                                                    </td>
+                                                    <td th:text="${agentAudit.getAuditStartDate()}">...</td>
+                                                    <td th:text="${agentAudit.getAuditEndDate()}">...</td>
+                                                    <td>
+                                                        <!-- 永久音檔設定或解除 -->
+                                                        <span th:switch="${agentAudit.getCanDL()}">
+                                                            <i th:case="0">
+                                                                <input type="checkbox" id="AbleDL"
+                                                                       class="checkboxdlagid" name="AbleDL" checked
+                                                                       th:value="${agentAudit.getAbleAgentID()+_+agentAudit.getUserName()+_+1+_}">
+                                                            </i>
+                                                            <!-- 解除永久 -->
+                                                            <i th:case="1">
+                                                                <input type="checkbox" id="NtAbleDL"
+                                                                       class="checkboxdlagid" name="NtAbleDL"
+                                                                       th:value="${agentAudit.getAbleAgentID()+_+agentAudit.getUserName()+_+0+_}">
+                                                            </i>
+															</span>
+                                                    </td>
+                                                    <td><span th:switch="${agentAudit.getSetrec()}">
+                                                        <!-- 設定永久 -->
+                                                        <i th:case="0">
+                                                            <input type="checkbox" id="AblerecDL"
+                                                                   class="checkboxrecagid" name="AblerecDL" checked
+                                                                   th:value="${agentAudit.getAbleAgentID()+_+agentAudit.getUserName()+_+1+_}">
+																</i>
+                                                        <!-- 解除永久 -->
+                                                        <i th:case="1">
+                                                            <input type="checkbox" id="NtAblerecDL"
+                                                                   class="checkboxrecagid" name="NtAblerecDL"
+                                                                   th:value="${agentAudit.getAbleAgentID()+_+agentAudit.getUserName()+_+0+_}">
+                                                        </i>
+															</span></td>
+                                                    <td>
+                                                        <input type="checkbox" class="checkbox" id="AgentID"
+                                                               name="AgentID"
+                                                               th:value="${agentAudit.getAbleAgentID() + ',' + agentAudit.getUserName()}"/>
+                                                    </td>
+
+                                                </tr>
+                                            </th:block>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- End: 可調聽AgentID -->
+
+                            <!-- Begin: 可調聽分機號碼 -->
+                            <div class="card card-header-actions mb-4">
+                                <div class="card-header h4" style="color:#007979; font-weight:bold;">
+                                    可調聽分機號碼<div>總共<span id="extCount" style="color:#007979; font-weight:bold;" ></span>筆</div>
+                                    <button class="btn btn-sm btn-primary" type="button" data-bs-toggle="modal"
+                                            data-bs-target="#syncExt">同步分機號碼
+                                    </button>
+                                    <button class="btn btn-sm btn-primary" type="button"
+                                            data-bs-toggle="modal" data-bs-target="#addAuditExtModal">新增分機號碼
+                                    </button>
+                                    <button class="btn btn-sm btn-primary" type="button" data-bs-toggle="modal"
+                                            data-target="#SetDowloadModalext"
+                                            id="extDLBtn"
+                                           >設定權限
+                                    </button>
+                                    <button class="badge bg-danger" type="button" id="openDelExtNumDialog"
+                                            data-bs-toggle="modal" data-bs-target="#"
+                                            >刪除
+                                    </button>
+                                </div>
+                                <div class="card-body p-0">
+                                    <!-- Billing history table-->
+                                    <div class="table-responsive table-billing-history">
+                                        <table id="exttable" class="table mb-0">
+                                            <thead>
+                                            <tr>
+                                                <th class="border-gray-200" scope="col">編輯</th>
+                                                <th class="border-gray-200" scope="col">分機號碼</th>
+                                                <th class="border-gray-200" scope="col">錄音平台登入帳號</th>
+                                                <th class="border-gray-200" scope="col">調聽起始時間</th>
+                                                <th class="border-gray-200" scope="col">調聽結束時間</th>
+                                                <th><input type="checkbox" id="select_all_dlext"/>下載音檔權限</th>
+                                                <th><input type="checkbox" id="select_all_recext"/>設定永久音檔權限</th>
+                                                <th><input type="checkbox" id="select_all_Ext"/>刪除</th>
+                                            </tr>
+                                            </thead>
+                                            <tbody id="exttbody">
+                                            <th:block th:each="extAudit : ${extAuditList}">
+                                                <tr>
+                                                    <td>
+                                                        <a href="#"
+                                                           th:attr="data-id=${extAudit.getAbleExt()},data-name=${extAudit.getUserName()}"
+                                                           id="updateAuditExtOpenBtn"
+                                                           class="updateAuditExtOpenBtn btn btn-warning btn-circle btn-sm"
+                                                           type="button" data-bs-toggle="modal" data-bs-target="#upExtModal">
+                                                            <i class="fas fa-edit"></i>
+                                                        </a>
+                                                    </td>
+                                                    <td th:text="'#'+${extAudit.getAbleExt()}">...</td>
+                                                    <td th:text="${extAudit.getUserName()}">...</td>
+                                                    <td th:text="${extAudit.getAuditStartDate()}">...</td>
+                                                    <td th:text="${extAudit.getAuditEndDate()}">...</td>
+                                                    <td>
+                                                        <span th:switch="${extAudit.getCanDL()}">
+                                                            <!-- 設定下載權限 -->
+                                                            <i th:case="0">
+                                                                <input type="checkbox" class="checkboxdlext"
+                                                                       id="AbleDLext" name="AbleDLext" checked
+                                                                       th:value="${extAudit.getAbleExt()+_+extAudit.getUserName()+_+1+_}">
+                                                            </i>
+                                                            <!-- 解除下載權限 -->
+                                                            <i th:case="1"><input type="checkbox" class="checkboxdlext"
+                                                                                  id="NtAbleDLext" name="NtAbleDLext"
+                                                                                  th:value="${extAudit.getAbleExt()+_+extAudit.getUserName()+_+0+_}">
+																</i>
+															</span>
+                                                    </td>
+                                                    <td>
+                                                        <span th:switch="${extAudit.getSetrec()}">
+                                                            <!-- 設定音檔權限 -->
+                                                            <i th:case="0">
+                                                                <input type="checkbox" class="checkboxrecext"
+                                                                       id="AblerecDLext" name="AblerecDLext" checked
+                                                                       th:value="${extAudit.getAbleExt()+_+extAudit.getUserName()+_+1+_}">
+                                                            </i>
+                                                            <!-- 解除永久 -->
+                                                            <i th:case="1">
+                                                                <input type="checkbox" class="checkboxrecext"
+                                                                       id="NtAblerecDLext" name="NtAblerecDLext"
+                                                                       th:value="${extAudit.getAbleExt()+_+extAudit.getUserName()+_+0+_}">
+																</i>
+															</span>
+                                                    </td>
+                                                    <td>
+                                                        <input type="checkbox" class="checkbox2" id="AbleExt"
+                                                               name="AbleExt"
+                                                               th:value="${extAudit.getAbleExt() + ',' + extAudit.getUserName()}"/>
+                                                    </td>
+                                                </tr>
+                                            </th:block>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- End: 可調聽分機號碼 -->
+
+                        </div>
+                    </main>
+
+                </div>
+                <!-- End Agent Audit Selection  -->
+
+            </div>
+            <!-- End Page Right Content -->
+
+        </div>
+        <!-- End of Main Content -->
+
+        <!-- Begin: Footer -->
+        <footer th:include="footer::footer" class="sticky-footer bg-white">
+        </footer>
+        <!-- End of Footer -->
+
+
+        <!-- Begin: Add AgentID Modal -->
+        <div class="modal fade" id="addAuditAgentIDModal"
+             data-bs-backdrop="static" tabindex="-1" role="dialog"
+             aria-labelledby="staticBackdropLabel" aria-hidden="true">
+            <form action="#" id="addAuditAgentID">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header bg-primary">
+                            <h5 class="modal-title text-white">新增可調聽AgentID</h5>
+                            <button class="btn-close" type="button" data-bs-dismiss="modal"
+                                    aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="form-group">
+                                <label class="small mb-1" style="color:#007979; font-weight:bold;" for="agenttsartdate">起始日期</label>
+                                <input class="form-control calendar flatpickrbegin" style="width:100%"
+                                       id="agentstartdate" name="AuditStartDate" autocomplete="off"  data-flatpickr />
+                                <input style="width: 100%" type="hidden" id="agentstartdate" name="AuditStartDate"/>
+                            </div>
+                            <div class="form-group">
+                                <label class="small mb-1" style="color:#007979; font-weight:bold;" for="agentenddate">結束日期</label>
+                                <input class="form-control calendarend flatpickrend" style="width:100%"
+                                       id="agentenddate" name="AuditEndDate" autocomplete="off"/>
+                                <input style="width: 100%" type="hidden" id="agentenddate" name="AuditEndDate"/>
+                            </div>
+                            <div class="form-group">
+
+                                <label class="small mb-1"
+                                       style="color: #007979; font-weight: bold;" for="addAgentID">AgentID</label>
+                                <input type="text" class="form-control form-control-user"
+                                       id="addAgentID" name="ableAgentID" placeholder="請輸入AgentID" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="small mb-1"
+                                       style="color: #007979; font-weight: bold;">下載音檔權限</label>
+                                <input type="checkbox" id="setDL" name="setDL" value="1">
+                            </div>
+                            <div class="form-group">
+                                <label class="small mb-1"
+                                       style="color: #007979; font-weight: bold;">設定永久音檔權限</label>
+                                <input type="checkbox" id="setRec" name="setRec" value="1">
+                            </div>
+                            <div>
+                                <input type="hidden" id="hiddenDL" name="hiddenDL" value="1">
+                            </div>
+                            <div>
+                                <input type="hidden" id="hiddenRec" name="hiddenRec" value="1">
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <input name="monitoringDepId" type="hidden" th:value="${currdepid}">
+                            <input name="monitoringUserId" type="hidden" th:value="${currsupid}">
+                            <button class="btn btn-secondary  text-white" type="button"
+                                    data-bs-dismiss="modal">關閉</button>
+                            <button class="btn btn-primary" type="submit" id="ckbtn">新增</button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <!-- End: Add AgentID Modal -->
+
+        <!-- Begin: Update AgentID Modal -->
+        <div class="modal fade" id="upAgentModal"
+             data-bs-backdrop="static" tabindex="-1" role="dialog"
+             aria-labelledby="staticBackdropLabel" aria-hidden="true">
+            <form action="#" id="upAgentForm">
+                <div class="modal-dialog" role="document" style="width: 50%;">
+                    <div class="modal-content">
+                        <div class="modal-header" style="background-color: #159C91;">
+                            <h5 class="modal-title text-white" id="uUpdateModalLabel">編輯AgentID</h5>
+                            <button class="btn-close" type="button" data-bs-dismiss="modal"
+                                    aria-label="Close">
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="form-group">
+                                <label class="small mb-1" style="color:#007979; font-weight:bold;">AgentID</label>
+                                <input type="text" class="form-control form-control-user" id="displayagentID"
+                                       name="displayagentID" disabled/>
+                                <input type="hidden" name="monitoringDepId" th:value="${currdepid}">
+                                <input type="hidden" name="monitoringUserId"  th:value="${currsupid}">
+                                <input type="hidden" id="UserName" name="UserName"/>
+                                <input type="hidden" id="ableAgentID" name="ableAgentID"/>
+                            </div>
+                            <div class="form-group">
+                                <label class="small mb-1" style="color:#007979; font-weight:bold;" for="upagentstartdate">起始日期</label>
+                                <input class="form-control form-control-user agstart startagfl " style="width:100%"
+                                       id="upagentstartdate" name="AuditStartDate" autocomplete="off"/>
+                                <input style="width: 100%" type="hidden" id="upagentstart" name="AuditStartDate"/>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="small mb-1" style="color:#007979; font-weight:bold;" for="upagentenddate">結束日期</label>
+                                <input class="form-control form-control-user agend endagfl " id="upagentenddate"
+                                       name="AuditEndDate" style="width:100%" autocomplete="off"/>
+                                <input style="width: 100%" type="hidden" id="upagentend" name="AuditEndDate"/>
+                            </div>
+                            <div class="form-group">
+                                <label class="small mb-1"
+                                       style="color: #007979; font-weight: bold;">下載音檔權限</label>
+                                <input type="checkbox" id="dLcheckbox" name="dlcheckbox"/>
+                            </div>
+                            <div class="form-group">
+                                <label class="small mb-1"
+                                       style="color: #007979; font-weight: bold;">設定永久音檔權限</label>
+                                <input type="checkbox" id="reccheckbox" name="reccheckbox"/>
+
+                            </div>
+                            <div class="modal-footer">
+                                <button class="btn btn-secondary  text-white" type="button" data-bs-dismiss="modal">關閉</button>
+                                <button type="submit" class="btn btn-primary" >確定修改</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- End: Update AgentID Modal -->
+        <!-- Begin: Update AgentID Modal -->
+        <div class="modal fade" id="upExtModal" tabindex="-1" role="dialog" aria-labelledby="upExtModalLabel"
+             aria-hidden="true">
+            <form action="#" id="upExtForm">
+                <div class="modal-dialog" role="document" style="width: 50%;">
+                    <div class="modal-content">
+                        <div class="modal-header" style="background-color: #159C91;">
+                            <h5 class="modal-title text-white" id="uUpdateModalLabel">編輯分機號碼</h5>
+                            <button type="button" class="close text-white" data-bs-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="form-group">
+                                <label class="small mb-1" style="color:#007979; font-weight:bold;">分機號碼</label>
+                                <input type="text" class="form-control form-control-user" id="displayext" name="displayext"
+                                       disabled/>
+                                <input type="hidden" name="monitoringDepId" th:value="${currdepid}">
+                                <input type="hidden" name="monitoringUserId"  th:value="${currsupid}">
+                                <input type="hidden" id="UserName" name="UserName"/>
+                                <input type="hidden" id="ableExt" name="ableExt"/>
+                            </div>
+                            <div class="form-group">
+                                <label class="small mb-1" style="color:#007979; font-weight:bold;"
+                                       for="upextstartdate">起始日期</label>
+                                <input class="form-control form-control-user agstart startagfl " style="width:100%"
+                                       id="upextstartdate" name="AuditStartDate" autocomplete="off" />
+
+                                <input style="width: 100%" type="hidden" id="upextstart" name="AuditStartDate"/>
+                            </div>
+                            <div class="form-group">
+                                <label class="small mb-1" style="color:#007979; font-weight:bold;"
+                                       for="upagentenddate">結束日期</label>
+                                <input class="form-control form-control-user agend endagfl" style="width:100%"
+                                       id="upextenddate" name="AuditEndDate"  autocomplete="off" />
+                                <input style="width: 100%" type="hidden" id="upextend" name="AuditEndDate"/>
+                            </div>
+                            <div class="form-group">
+                                <label class="small mb-1"
+                                       style="color: #007979; font-weight: bold;">下載音檔權限</label>
+                                <input type="checkbox" id="extdLcheckbox" name="extdlcheckbox"/>
+                            </div>
+                            <div class="form-group">
+                                <label class="small mb-1"
+                                       style="color: #007979; font-weight: bold;">設定永久音檔權限</label>
+                                <input type="checkbox" id="extreccheckbox" name="extreccheckbox"/>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">關閉</button>
+                                <button type="submit" class="btn btn-primary">確定修改</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <!-- End: Update AgentID Modal -->
+
+        <!-- Begin: Delete AgentID Modal -->
+        <div class="modal fade" id="agentIDDeleteModal" tabindex="-1"
+             role="dialog" aria-labelledby="agentIDDeleteModalLabel" aria-hidden="true">
+            <form action="#" th:action="@{/supaudit/delagentid}" method="post">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header" style="background-color: #159C91;">
+                            <h5 class="modal-title text-white" id="exampleModalLabel">調聽AgentID刪除</h5>
+                            <button type="button" class="close text-white" data-bs-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="form-group">
+                                <label class="small mb-1" style="color: #007979; font-weight: bold; font-size: 18px">確定刪除已勾選AgentID?</label>
+                                <input type="hidden" id="delSupList" name="delSupList" value=""/>
+                                <h4 id="showDelAgentID"></h4>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary"
+                                    data-bs-dismiss="modal">關閉
+                            </button>
+                            <button type="button" class="btn btn-primary" id="delAgentIds" >
+                                確定刪除
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <!-- End:  Delete AgentID Modal ======================================== -->
+
+        <!-- Begin: Sync AgentID Modal -->
+        <div class="modal fade" id="syncAgentID" data-bs-backdrop="static" tabindex="-1" role="dialog"
+             aria-labelledby="staticBackdropLabel" aria-hidden="true">
+            <form id="agentIdFormId">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header" style="background-color: #159C91;">
+                            <h5 class="modal-title text-white">同步AgentID</h5>
+                            <button class="btn-close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="form-group">
+                                <label class="small mb-1" style="color:#007979; font-weight:bold; font-size:18px"
+                                       for="currentDepid">確定同步該部門的AgentID?</label>
+                                <h4 id="showSyncDepID"></h4>
+                            </div>
+                            <div class="form-group">
+                                <label class="small mb-1"
+                                       style="color: #007979; font-weight: bold;">設定下載權限</label>
+                                <input type="checkbox" id="setDLSyncId" name="setDLSyncId" value="1">
+                            </div>
+                            <div class="form-group">
+                                <label class="small mb-1"
+                                       style="color: #007979; font-weight: bold;">設定永久音檔權限</label>
+                                <input type="checkbox" id="setRecSyncId" name="setRecSyncId" value="1">
+                            </div>
+                            <div>
+                                <input type="hidden" id="hiddenDLSyncId" name="hiddenDLSyncId" value="1">
+                            </div>
+                            <div>
+                                <input type="hidden" id="hiddenRecSyncId" name="hiddenRecSyncId" value="1">
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <input id="syncDepID" name="syncDepID" type="hidden" th:value="${currdepid}">
+                            <input id="syncSupName" name="syncUserName" type="hidden" th:value="${currsupname}">
+                            <button class="btn btn-secondary  text-white" type="button" data-bs-dismiss="modal">關閉
+                            </button>
+                            <button class="btn btn-primary" type="submit" id="syncAgentIdBtn">確定同步</button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <!-- End: Sync AgentID Modal ======================================== -->
+
+        <!-- Begin: set Download Modal -->
+        <div class="modal fade" id="SetDowloadModal" tabindex="-1"
+             role="dialog" aria-labelledby="agentIDDeleteModalLabel"
+             aria-hidden="true">
+            <form action="#" th:action="@{/supaudit/setDLAgent}" method="post">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header" style="background-color: #159C91;">
+                            <h5 class="modal-title text-white" id="exampleModalLDl">設定可否下載</h5>
+                            <button type="button" class="close text-white"
+                                    data-bs-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="form-group">
+                                <label class="small mb-1"
+                                       style="color: #007979; font-weight: bold; font-size: 18px"
+                                       for="delname">是否確定設定?</label> <input type="hidden"
+                                                                                  id="lokDLList" name="lokDLList"
+                                                                                  value=""/> <input
+                                    type="hidden" id="setDLList" name="setDLList" value=""/> <input
+                                    type="hidden" id="lokrecList" name="lokrecList" value=""/> <input
+                                    type="hidden" id="setrecList" name="setrecList" value=""/>
+                                <h4 id="showDelAgentID"></h4>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary"
+                                    data-bs-dismiss="modal">關閉
+                            </button>
+                            <input type="submit" class="btn btn-primary" value="確定">
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <!-- End:  set Download Modal ======================================== -->
+
+        !-- Begin: set Download by ext -->
+        <div class="modal fade" id="SetDowloadModalext" tabindex="-1"
+             role="dialog" aria-labelledby="agentIDDeleteModalLabel"
+             aria-hidden="true">
+            <form action="#" th:action="@{/supaudit/setDLExt}" method="post">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header" style="background-color: #159C91;">
+                            <h5 class="modal-title text-white" id="exampleModalLDl">設定可否下載</h5>
+                            <button type="button" class="close text-white"
+                                    data-bs-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="form-group">
+                                <label class="small mb-1"
+                                       style="color: #007979; font-weight: bold; font-size: 18px"
+                                       for="delname">是否確定設定?</label>
+                                <input type="hidden" id="lokDLListext" name="lokDLListext" value=""/> <input
+                                    type="hidden" id="setDLListext" name="setDLListext" value=""/>
+                                <input type="hidden" id="lokrecListext" name="lokrecListext" value=""/>
+                                <input type="hidden" id="setrecListext" name="setrecListext" value=""/>
+                                <h4 id="showDelAgentID"></h4>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary"
+                                    data-bs-dismiss="modal">關閉
+                            </button>
+                            <input type="submit" class="btn btn-primary" value="確定">
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <!-- End:  set Download byext ======================================== -->
+
+        <!-- Begin: Add Ext Modal -->
+        <div class="modal fade" id="addAuditExtModal" data-bs-backdrop="static" tabindex="-1" role="dialog">
+            <form action="#" id="addAuditExt">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header bg-primary">
+                            <h5 class="modal-title text-white">新增可調聽分機號碼</h5>
+                            <button class="btn-close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="form-group">
+                                <label class="small mb-1" style="color:#007979; font-weight:bold;"
+                                       for="extstartdate">起始日期</label>
+                                <input class="form-control calendar flatpickrbegin" style="width:100%" id="extstartdate"
+                                       name="AuditStartDate" autocomplete="off" data-flatpickr />
+                            </div>
+                            <div class="form-group">
+                                <label class="small mb-1" style="color:#007979; font-weight:bold;" for="extenddate">結束日期</label>
+                                <input class="form-control calendarend flatpickrend" style="width:100%" id="extenddate"
+                                       name="AuditEndDate" autocomplete="off"/>
+                            </div>
+                            <div class="form-group">
+                                <label class="small mb-1" style="color:#007979; font-weight:bold;"
+                                       for="ableExt">分機號碼</label>
+                                <input type="text" class="form-control form-control-user" id="addExt" name="ableExt"
+                                       maxlength="10" placeholder="請輸入分機號碼" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="small mb-1"
+                                       style="color: #007979; font-weight: bold;">下載音檔權限</label>
+                                <input type="checkbox" id="setDLExt" name="setDLExt" value="1">
+                            </div>
+                            <div class="form-group">
+                                <label class="small mb-1"
+                                       style="color: #007979; font-weight: bold;">設定永久音檔權限</label>
+                                <input type="checkbox" id="setRecExt" name="setRecExt" value="1">
+                            </div>
+                            <div>
+                                <input type="hidden" id="hiddenDLExt" name="hiddenDLExt" value="1">
+                            </div>
+                            <div>
+                                <input type="hidden" id="hiddenRecExt" name="hiddenRecExt" value="1">
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <input name="monitoringDepId" type="hidden" th:value="${currdepid}">
+                            <input name="monitoringUserId" type="hidden" th:value="${currsupid}">
+                            <button class="btn bg-gray-600 text-white" type="button" data-bs-dismiss="modal">關閉
+                            </button>
+                            <button class="btn btn-primary" type="submit">新增</button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <!-- End: Add Ext Modal -->
+
+        <!-- Begin: Delete Ext Num Modal -->
+        <div class="modal fade" id="extNumDeleteModal" tabindex="-1" role="dialog"
+             aria-labelledby="extNumDeleteModalLabel" aria-hidden="true">
+            <form action="#" th:action="@{/supaudit/delextnum}" method="post">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header" style="background-color: #159C91;">
+                            <h5 class="modal-title text-white">調聽分機號碼刪除</h5>
+                            <button type="button" class="close text-white" data-bs-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="form-group">
+                                <label class="small mb-1" style="color:#007979; font-weight:bold; font-size:18px">確定刪除此分機號碼的調聽?</label>
+                                <input type="hidden" id="delExtList" name="delExtList" value=""/>
+                                <h4 id="showDelExtNum"></h4>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">關閉</button>
+                            <button type="button" class="btn btn-primary" id="delExtNumber">確定刪除</button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <!-- End:  Delete Ext Num Modal ======================================== -->
+
+        <!-- Begin: Sync Ext Modal -->
+        <div class="modal fade" id="syncExt" data-bs-backdrop="static" tabindex="-1" role="dialog"
+             aria-labelledby="staticBackdropLabel" aria-hidden="true">
+            <form id="extFormId">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header" style="background-color: #159C91;">
+                            <h5 class="modal-title text-white">同步分機號碼</h5>
+                            <button class="btn-close" type="button" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="form-group">
+                                <label class="small mb-1" style="color:#007979; font-weight:bold; font-size:18px"
+                                       for="currentDepid">確定同步該部門的分機號碼?</label>
+                                <h4 id="showSyncDepID"></h4>
+                            </div>
+                            <div class="form-group">
+                                <label class="small mb-1"
+                                       style="color: #007979; font-weight: bold;">下載音檔權限</label>
+                                <input type="checkbox" id="setDLSyncExt" name="setDLSyncExt" value="1">
+                            </div>
+                            <div class="form-group">
+                                <label class="small mb-1"
+                                       style="color: #007979; font-weight: bold;">設定永久音檔權限</label>
+                                <input type="checkbox" id="setRecSyncExt" name="setRecSyncExt" value="1">
+                            </div>
+                            <div>
+                                <input type="hidden" id="hiddenDLSyncExt" name="hiddenDLSyncExt" value="1">
+                            </div>
+                            <div>
+                                <input type="hidden" id="hiddenRecSyncExt" name="hiddenRecSyncExt" value="1">
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <input id="syncDepIDExt" name="syncDepID" type="hidden" th:value="${currdepid}">
+                            <input id="syncSupNameExt" name="syncUserName" type="hidden" th:value="${currsupname}">
+                            <button class="btn btn-secondary  text-white" type="button" data-bs-dismiss="modal">關閉
+                            </button>
+                            <button class="btn btn-primary" type="submit" id="syncExtBtn">確定同步</button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <!-- End: Sync Ext Modal ======================================== -->
+    </div>
+    <!-- End of Content Wrapper -->
+</div>
+<!-- Scroll to Top Button-->
+<a class="scroll-to-top rounded" href="#page-top">
+    <i class="fas fa-angle-up"></i>
+</a>
+
+<!-- Bootstrap core JavaScript-->
+<script th:src="@{/assets/vendor/jquery/jquery.min.js}" type="text/javascript"></script>
+<script th:src="@{/assets/vendor/bootstrap/js/bootstrap.bundle.min.js}" type="text/javascript"></script>
+
+<!-- Core plugin JavaScript-->
+<script th:src="@{/assets/vendor/jquery-easing/jquery.easing.min.js}" type="text/javascript"></script>
+
+<!-- Custom scripts for all pages-->
+<script th:src="@{/assets/js/sb-admin-2.min.js}" type="text/javascript"></script>
+
+<!-- Page level plugins -->
+<script th:src="@{/assets/vendor/datatables/jquery.dataTables.min.js}" type="text/javascript"></script>
+<script th:src="@{/assets/vendor/datatables/dataTables.bootstrap4.min.js}" type="text/javascript"></script>
+
+<!-- Page level custom scripts -->
+<script th:src="@{/assets/js/demo/datatables-demo.js}" type="text/javascript"></script>
+
+<!-- Theme pro js tool -->
+<script th:src="@{/assets/js/bootstrap.bundle.min.js}" type="text/javascript"></script>
+
+<!-- flatpickr calendar scripts -->
+<script th:src="@{/assets/vendor/flatpickr-gh-pages/flatpickr.min.js}" type="text/javascript"></script>
+
+
+<script type="text/javascript" th:nonce="${cspNonce}">
+
+     $(document).ready(function () {
+        // 獲取表格中所有的<tr>元素
+        var rowsInTbody1 = document.querySelectorAll("#agentIDtbody tr");
+
+        // 獲取第二個<tbody>中的所有<tr>元素
+        var rowsInTbody2 = document.querySelectorAll("#exttbody tr");
+
+        document.getElementById("agentCount").textContent = rowsInTbody1.length;
+        document.getElementById("extCount").textContent = rowsInTbody2.length;
+
+        // 輸出總的<tr>元素的數量
+        console.log("agentid"+rowsInTbody1.length);
+        console.log("ext"+rowsInTbody2.length);
+    });
+</script>
+
+<!-- Begin: Handling Calendar -->
+<script type="text/javascript" th:nonce="${cspNonce}">
+    //設定目前時間
+    function setCurrTime() {
+        // 目前時間
+        var localdate = new Date().toLocaleDateString('zh-TW').split('/').join('-');
+        var localtime = new Date().toLocaleTimeString('zh-TW', {
+            hour: 'numeric',
+            minute: 'numeric',
+            second: 'numeric',
+            hour12: false
+        });
+        var currDateTime = localdate + " " + localtime; //當天+當時
+        /*document.getElementById('agentenddate').value = localdate +" 00:00:01";
+        document.getElementById('agentstartdate').value = currDateTime;
+        document.getElementById('extstartdate').value = localdate +" 00:00:01";
+        document.getElementById('extenddate').value = currDateTime */
+
+        document.getElementById('agentenddate').value = "";
+        document.getElementById('agentstartdate').value = "";
+        document.getElementById('extstartdate').value = "";
+        document.getElementById('extenddate').value = "";
+    }
+
+    //設定目前日期
+    function setCurrDate() {
+        //當日的凌晨00:00:01
+        var localdate = new Date().toLocaleDateString('zh-TW').split('/').join('-');
+        var currDate = localdate + " 00:00:01";
+        document.getElementById('agentstartdate').value = currDate;
+        document.getElementById('extstartdate').value = currDate;
+    }
+
+    function setCurrMonth() {
+        //本月的1號
+        var dt = new Date();
+        var currMonthFirstDay = dt.getFullYear() + "-" + (dt.getUTCMonth() + 1) + "-01 00:00:00";
+        document.getElementById('queryMonthFirstDay').value = currMonthFirstDay;
+    }
+
+    //啟動本頁 Calendar flatpickr 模組, 含關閉時確認輸入的起迄區間
+    $(".calendar").flatpickr({
+        dateFormat: "Y-m-d H:i:ss",
+        allowInput: true,
+        time_24hr: true,
+        enableTime: true,
+        minuteIncrement: 1,
+        defaultHour: 00,
+        maxDate: new Date().fp_incr(365), // 365 days from now
+        onReady() {
+            this.showTimeInput = true
+        }
+    });
+
+    $(".calendarend").flatpickr({
+        dateFormat: "Y-m-d H:i:ss",
+        time_24hr: true,
+        enableTime: true,
+        minuteIncrement: 1,
+        maxDate: "today",
+        defaultHour: 23,
+        defaultMinute: 59,
+        allowInput: true,
+        maxDate: new Date().fp_incr(365),
+        onReady() {
+            this.showTimeInput = true;
+        }
+    });
+
+    //檢查選取區間
+    function checkDateRange() {
+        var rangeday = 30;
+        var begintime = new Date($('.flatpickrbegin').val());
+        var endtime = new Date($('.flatpickrend').val());
+        var rt = true;
+
+        if (begintime > endtime) {
+            showMsg('起始時間不可晚於結束時間');
+            rt = false;
+        }
+        begintime.setDate(begintime.getDate() + rangeday);
+        if (begintime < endtime) {
+            showMsg('起訖時間必須小於' + rangeday + '天');
+            rt = false;
+        }
+        return rt;
+    }
+</script>
+
+<!-- Begin: checkbox for Delete AgentID -->
+<script type="text/javascript" th:nonce="${cspNonce}">
+    $(document).ready(function () {
+        $('#select_all_AgentID').on('click', function () {
+            if (this.checked) {
+                $('.checkbox').each(function () {
+                    this.checked = true;
+                });
+            } else {
+                $('.checkbox').each(function () {
+                    this.checked = false;
+                });
+            }
+        });
+
+        $('.checkbox').on('click', function () {
+            if ($('.checkbox:checked').length == $('.checkbox').length) {
+                $('#select_all_AgentID').prop('checked', true);
+            } else {
+                $('#select_all_AgentID').prop('checked', false);
+            }
+        });
+    });
+</script>
+
+<!-- Begin: checkbox for Delete Ext -->
+<script type="text/javascript" th:nonce="${cspNonce}">
+    $(document).ready(function () {
+        $('#select_all_Ext').on('click', function () {
+            if (this.checked) {
+                $('.checkbox2').each(function () {
+                    this.checked = true;
+                });
+            } else {
+                $('.checkbox2').each(function () {
+                    this.checked = false;
+                });
+            }
+        });
+
+        $('.checkbox2').on('click', function () {
+            if ($('.checkbox2:checked').length == $('.checkbox2').length) {
+                $('#select_all_Ext').prop('checked', true);
+            } else {
+                $('#select_all_Ext').prop('checked', false);
+            }
+        });
+    });
+</script>
+
+<!----------------------------- 下載權限agentid checkbox全選 ----------------------->
+<script type="text/javascript" th:nonce="${cspNonce}">
+    $(document).ready(function () {
+        $('#select_all_agdl').on('click', function () {
+            if (this.checked) {
+                $('.checkboxdlagid').each(function () {
+                    this.checked = true;
+                });
+            } else {
+                $('.checkboxdlagid').each(function () {
+                    this.checked = false;
+                });
+            }
+        });
+
+        $('.checkboxdlagid').on('click', function () {
+            if ($('.checkboxdlagid:checked').length == $('.checkboxdlagid').length) {
+                $('#select_all_agdl').prop('checked', true);
+            } else {
+                $('#select_all_agdl').prop('checked', false);
+            }
+        });
+    });
+
+</script>
+<!-------------------------- 錄音權限agentid checkbox全選--------------------------------->
+<script type="text/javascript" th:nonce="${cspNonce}">
+    $(document).ready(function () {
+        $('#select_all_agrec').on('click', function () {
+            if (this.checked) {
+                $('.checkboxrecagid').each(function () {
+                    this.checked = true;
+                });
+            } else {
+                $('.checkboxrecagid').each(function () {
+                    this.checked = false;
+                });
+            }
+        });
+
+        $('.checkboxrecagid').on('click', function () {
+            if ($('.checkboxrecagid:checked').length == $('.checkboxrecagid').length) {
+                $('#select_all_agrec').prop('checked', true);
+            } else {
+                $('#select_all_agrec').prop('checked', false);
+            }
+        });
+    });
+</script>
+
+<!-------------------------- 下載權限Ext checkbox全選--------------------------------->
+<script type="text/javascript" th:nonce="${cspNonce}">
+    $(document).ready(function () {
+        $('#select_all_dlext').on('click', function () {
+            if (this.checked) {
+                $('.checkboxdlext').each(function () {
+                    this.checked = true;
+                });
+            } else {
+                $('.checkboxdlext').each(function () {
+                    this.checked = false;
+                });
+            }
+        });
+
+        $('.checkboxdlext').on('click', function () {
+            if ($('.checkboxdlext:checked').length == $('.checkboxdlext').length) {
+                $('#select_all_dlext').prop('checked', true);
+            } else {
+                $('#select_all_dlext').prop('checked', false);
+            }
+        });
+    });
+</script>
+
+<!-------------------------- 音檔權限Ext checkbox全選--------------------------------->
+<script type="text/javascript" th:nonce="${cspNonce}">
+    $(document).ready(function () {
+        $('#select_all_recext').on('click', function () {
+            if (this.checked) {
+                $('.checkboxrecext').each(function () {
+                    this.checked = true;
+                });
+            } else {
+                $('.checkboxrecext').each(function () {
+                    this.checked = false;
+                });
+            }
+        });
+
+        $('.checkboxrecext').on('click', function () {
+            if ($('.checkboxrecext:checked').length == $('.checkboxrecext').length) {
+                $('#select_all_recext').prop('checked', true);
+            } else {
+                $('#select_all_recext').prop('checked', false);
+            }
+        });
+    });
+</script>
+
+<!-- Begin: 新增AgentID 設定下載與永久Checkbox 設定權限 -->
+<script type="text/javascript" th:nonce="${cspNonce}">
+    let agentDLBtn = document.getElementById('agentDLbtn');
+    agentDLBtn.addEventListener('click', setDL);
+    function setDL() {
+        var able1 = document.getElementsByName("AbleDL");
+        var able2 = document.getElementsByName("NtAbleDL");
+        var len1 = able1.length;
+        var len2 = able2.length;
+        var list1 = "";
+        var list2 = "";
+        var rec1 = document.getElementsByName("AblerecDL");
+        var rec2 = document.getElementsByName("NtAblerecDL");
+        var reclen1 = rec1.length;
+        var reclen2 = rec2.length;
+        var list3 = "";
+        var list4 = "";
+
+        for (var i = 0; i < len1; i++) {
+            if (!able1[i].checked) {
+                list1 += able1[i].value;
+            }
+        }
+        for (var i = 0; i < len2; i++) {
+            if (able2[i].checked) {
+                list2 += able2[i].value;
+            }
+        }
+        for (var i = 0; i < reclen1; i++) {
+            if (!rec1[i].checked) {
+                list3 += rec1[i].value;
+            }
+        }
+        for (var i = 0; i < reclen2; i++) {
+            if (rec2[i].checked) {
+                list4 += rec2[i].value;
+            }
+        }
+
+        if (list1 == "" && list2 == "" && list3 == "" && list4 == "") {
+            showMsg("尚未勾選資料");
+            return;
+
+            // window.location.reload();
+        }
+        var a = list1.split("null");
+        var b = list2.split("null");
+        var c = list3.split("null");
+        var x = list4.split("null");
+        document.getElementById("lokDLList").value = a;
+        document.getElementById("setDLList").value = b;
+        document.getElementById("lokrecList").value = c;
+        document.getElementById("setrecList").value = x;
+
+        let triggerBtn = document.getElementById('agentDLbtn');
+        if (triggerBtn.getAttribute('data-bs-target') === '#')
+            triggerBtn.setAttribute('data-bs-target', '#SetDowloadModal');
+
+        $("#SetDowloadModal").on("shown.bs.modal", () => {
+        }).modal('show');
+        triggerBtn.setAttribute('data-bs-target', '#');
+    }
+
+    let agentDelBtn = document.getElementById('openDelAgentDialog');
+    agentDelBtn.addEventListener('click', delAgentIdsModal);
+    function delAgentIdsModal() {
+        let checkBoxArray = Array.from(document.getElementsByName("AgentID"))
+            .filter((checkbox) => checkbox.checked)
+            .map((checkbox) => checkbox.value);
+
+        if (checkBoxArray.length === 0) {
+            showMsg("尚未勾選資料");
+            return;
+        }
+
+        if (agentDelBtn.getAttribute('data-bs-target') === '#')
+            agentDelBtn.setAttribute('data-bs-target', '#agentIDDeleteModal');
+
+        $("#agentIDDeleteModal").on("shown.bs.modal", () => {
+            $("#delSupList").val(checkBoxArray);
+        }).modal('show');
+        agentDelBtn.setAttribute('data-bs-target', '#');
+    }
+
+    let delAgentIds = document.getElementById('delAgentIds');
+    delAgentIds.addEventListener('click', delAgentIdsBtn);
+    function delAgentIdsBtn() {
+        $('#delAgentIds').prop('disabled', true);
+
+        let formData = {
+            delList: $("#delSupList").val(),
+            deleteType: 'delAgentIds'
+        };
+
+        $.ajax({
+            url: "/supaudit",
+            type: "DELETE",
+            data: formData,
+            success: function () {
+                $('#agentIDDeleteModal').modal('hide');
+                location.reload();
+            },
+            error: function (xhr, status) {
+                $('#agentIDDeleteModal').modal('hide');
+                if(status === 'error')
+                    showMsg("刪除時發生錯誤");
+            },
+            complete: function() {
+                setTimeout(function() {
+                    $('#delAgentIds').prop('disabled', false);
+                }, 1500);
+            }
+        })
+    }
+
+    let delExtBtn = document.getElementById('openDelExtNumDialog');
+    delExtBtn.addEventListener('click', delExtNumberModal)
+    function delExtNumberModal() {
+        let checkBoxArray = Array.from(document.getElementsByName("AbleExt"))
+            .filter((checkbox) => checkbox.checked)
+            .map((checkbox) => checkbox.value);
+
+        if (checkBoxArray.length === 0) {
+            showMsg("尚未勾選資料");
+            return;
+        }
+
+        let button = document.getElementById('openDelExtNumDialog');
+        if (button.getAttribute('data-bs-target') === '#')
+            button.setAttribute('data-bs-target', '#extNumDeleteModal');
+
+        $("#extNumDeleteModal").on("shown.bs.modal", () => {
+            $("#delExtList").val(checkBoxArray);
+        }).modal('show');
+        button.setAttribute('data-bs-target', '#');
+    }
+
+    let delExtNumber = document.getElementById('delExtNumber');
+    delExtNumber.addEventListener('click', delExtNumberBtn);
+    function delExtNumberBtn() {
+        $('#delExtNumber').prop('disabled', true);
+
+        let formData = {
+            delList: $("#delExtList").val(),
+            deleteType: 'delExt'
+        };
+
+        $.ajax({
+            url: "/supaudit",
+            type: "DELETE",
+            data: formData,
+            success: function () {
+                $('#extNumDeleteModal').modal('hide');
+                location.reload();
+            },
+            error: function (xhr, status) {
+                $('#extNumDeleteModal').modal('hide');
+                if(status === 'error')
+                   showMsg("刪除時發生錯誤");
+            },
+            complete: function() {
+                setTimeout(function() {
+                    $('#delExtNumber').prop('disabled', false);
+                }, 1500);
+            }
+        });
+    }
+</script>
+<!-- End: 新增AgentID 設定下載與永久Checkbox 設定權限 -->
+
+<!-- Begin: 新增分機號碼 設定下載與永久Checkbox 設定權限 -->
+<script type="text/javascript" th:nonce="${cspNonce}">
+    let extDLBtn = document.getElementById('extDLBtn');
+    extDLBtn.addEventListener('click', setDLext);
+    function setDLext() {
+        var able1 = document.getElementsByName("AbleDLext");
+        var able2 = document.getElementsByName("NtAbleDLext");
+        var len1 = able1.length;
+        var len2 = able2.length;
+        var list1 = "";
+        var list2 = "";
+        var rec1 = document.getElementsByName("AblerecDLext");
+        var rec2 = document.getElementsByName("NtAblerecDLext");
+        var reclen1 = rec1.length;
+        var reclen2 = rec2.length;
+        var list3 = "";
+        var list4 = "";
+
+        for (var i = 0; i < len1; i++) {
+            if (!able1[i].checked) {
+                list1 += able1[i].value;
+            }
+        }
+        for (var i = 0; i < len2; i++) {
+            if (able2[i].checked) {
+                list2 += able2[i].value;
+            }
+        }
+        for (var i = 0; i < reclen1; i++) {
+            if (!rec1[i].checked) {
+                list3 += rec1[i].value;
+            }
+        }
+        for (var i = 0; i < reclen2; i++) {
+            if (rec2[i].checked) {
+                list4 += rec2[i].value;
+            }
+        }
+
+        if (list1 == "" && list2 == "" && list3 == "" && list4 == "") {
+            showMsg("尚未勾選資料");
+            return;
+            // window.location.reload();
+        }
+        var a = list1.split("null");
+        var b = list2.split("null");
+        var c = list3.split("null");
+        var x = list4.split("null");
+        document.getElementById("lokDLListext").value = a;
+        document.getElementById("setDLListext").value = b;
+        document.getElementById("lokrecListext").value = c;
+        document.getElementById("setrecListext").value = x;
+
+        let triggerBtn = document.getElementById('extDLBtn');
+        if (triggerBtn.getAttribute('data-bs-target') === '#')
+            triggerBtn.setAttribute('data-bs-target', '#SetDowloadModalext');
+
+        $("#SetDowloadModalext").on("shown.bs.modal", () => {
+        }).modal('show');
+        triggerBtn.setAttribute('data-bs-target', '#');
+
+    }
+</script>
+<!-- End: 新增分機號碼 設定下載與永久Checkbox 設定權限 -->
+
+<!-- Begin: 新增AgentID 監聽 設定下載與永久Checkbox -->
+<script type="text/javascript" th:nonce="${cspNonce}">
+    const setDLCheckbox = document.querySelector('#setDL');
+    const setRecCheckbox = document.querySelector('#setRec');
+    const hiddenDL = document.querySelector('#hiddenDL');
+    const hiddenRec = document.querySelector('#hiddenRec');
+
+    setDLCheckbox.addEventListener('change', function () {
+        hiddenDL.value = setDLCheckbox.checked ? '0' : '1';
+        console.log("hiddenDL.value:  "+ hiddenDL.value);
+        hiddenRec.value = setRecCheckbox.checked ? '0' : '1';
+    });
+
+    setRecCheckbox.addEventListener('change', function () {
+        hiddenRec.value = setRecCheckbox.checked ? '0' : '1';
+        hiddenDL.value = setDLCheckbox.checked ? '0' : '1';
+    });
+</script>
+<!-- End: 新增AgentID 監聽 設定下載與永久Checkbox -->
+
+<!-- Begin: 新增分機號碼 監聽 設定下載與永久Checkbox -->
+<script type="text/javascript" th:nonce="${cspNonce}">
+    const setDLExtCheckbox = document.querySelector('#setDLExt');
+    const setRecExtCheckbox = document.querySelector('#setRecExt');
+    const hiddenDLExt = document.querySelector('#hiddenDLExt');
+    const hiddenRecExt = document.querySelector('#hiddenRecExt');
+
+    setDLExtCheckbox.addEventListener('change', function () {
+        hiddenDLExt.value = setDLExtCheckbox.checked ? '0' : '1';
+        hiddenRecExt.value = setRecExtCheckbox.checked ? '0' : '1';
+    });
+
+    setRecExtCheckbox.addEventListener('change', function () {
+        hiddenRecExt.value = setRecExtCheckbox.checked ? '0' : '1';
+        hiddenDLExt.value = setDLExtCheckbox.checked ? '0' : '1';
+    });
+</script>
+<!-- End: 新增分機號碼 監聽 設定下載與永久Checkbox -->
+
+<!-- Begin: 同步AgentID 設定下載與永久Checkbox 設定權限 -->
+<script type="text/javascript" th:nonce="${cspNonce}">
+    function setDLSyncId() {
+        var able1 = document.getElementsByName("AbleDL");
+        var able2 = document.getElementsByName("NtAbleDL");
+        var len1 = able1.length;
+        var len2 = able2.length;
+        var list1 = "";
+        var list2 = "";
+        var rec1 = document.getElementsByName("AblerecDL");
+        var rec2 = document.getElementsByName("NtAblerecDL");
+        var reclen1 = rec1.length;
+        var reclen2 = rec2.length;
+        var list3 = "";
+        var list4 = "";
+
+        for (var i = 0; i < len1; i++) {
+            if (!able1[i].checked) {
+                list1 += able1[i].value;
+            }
+        }
+        for (var i = 0; i < len2; i++) {
+            if (able2[i].checked) {
+                list2 += able2[i].value;
+            }
+        }
+        for (var i = 0; i < reclen1; i++) {
+            if (!rec1[i].checked) {
+                list3 += rec1[i].value;
+            }
+        }
+        for (var i = 0; i < reclen2; i++) {
+            if (rec2[i].checked) {
+                list4 += rec2[i].value;
+            }
+        }
+
+        if (list1 == "" && list2 == "" && list3 == "" && list4 == "") {
+            showMsg("尚未勾選資料");
+            window.location.reload();
+        }
+        var a = list1.split("null");
+        var b = list2.split("null");
+        var c = list3.split("null");
+        var x = list4.split("null");
+        document.getElementById("lokDLListext").value = a;
+        document.getElementById("setDLListext").value = b;
+        document.getElementById("lokrecListext").value = c;
+        document.getElementById("setrecListext").value = x;
+    }
+</script>
+<!-- End: 同步AgentID 設定下載與永久Checkbox 設定權限 -->
+
+<!-- Begin: 同步AgentID 監聽 設定下載與永久Checkbox -->
+<script type="text/javascript" th:nonce="${cspNonce}">
+    const setDLSyncIdCheckbox = document.querySelector('#setDLSyncId');
+    const setRecSyncIdCheckbox = document.querySelector('#setRecSyncId');
+    const hiddenDLSyncId = document.querySelector('#hiddenDLSyncId');
+    const hiddenRecSyncId = document.querySelector('#hiddenRecSyncId');
+
+    setDLSyncIdCheckbox.addEventListener('change', function () {
+        hiddenDLSyncId.value = setDLSyncIdCheckbox.checked ? '0' : '1';
+        hiddenRecSyncId.value = setRecSyncIdCheckbox.checked ? '0' : '1';
+    });
+
+    setRecSyncIdCheckbox.addEventListener('change', function () {
+        hiddenRecSyncId.value = setRecSyncIdCheckbox.checked ? '0' : '1';
+        hiddenDLSyncId.value = setDLSyncIdCheckbox.checked ? '0' : '1';
+    });
+</script>
+<!-- End: 同步AgentID 監聽 設定下載與永久Checkbox -->
+
+<!-- Begin: 同步分機號碼 設定下載與永久Checkbox 設定權限 -->
+<script type="text/javascript" th:nonce="${cspNonce}">
+    function setDLSyncExt() {
+        var able1 = document.getElementsByName("AbleDL");
+        var able2 = document.getElementsByName("NtAbleDL");
+        var len1 = able1.length;
+        var len2 = able2.length;
+        var list1 = "";
+        var list2 = "";
+        var rec1 = document.getElementsByName("AblerecDL");
+        var rec2 = document.getElementsByName("NtAblerecDL");
+        var reclen1 = rec1.length;
+        var reclen2 = rec2.length;
+        var list3 = "";
+        var list4 = "";
+
+        for (var i = 0; i < len1; i++) {
+            if (!able1[i].checked) {
+                list1 += able1[i].value;
+            }
+        }
+
+        for (var i = 0; i < len2; i++) {
+            if (able2[i].checked) {
+                list2 += able2[i].value;
+            }
+        }
+        for (var i = 0; i < reclen1; i++) {
+            if (!rec1[i].checked) {
+                list3 += rec1[i].value;
+            }
+        }
+        for (var i = 0; i < reclen2; i++) {
+            if (rec2[i].checked) {
+                list4 += rec2[i].value;
+            }
+        }
+
+        if (list1 == "" && list2 == "" && list3 == "" && list4 == "") {
+            showMsg("尚未勾選資料");
+            window.location.reload();
+        }
+        var a = list1.split("null");
+        var b = list2.split("null");
+        var c = list3.split("null");
+        var x = list4.split("null");
+        document.getElementById("lokDLListext").value = a;
+        document.getElementById("setDLListext").value = b;
+        document.getElementById("lokrecListext").value = c;
+        document.getElementById("setrecListext").value = x;
+    }
+</script>
+<!-- End: 同步分機號碼 設定下載與永久Checkbox 設定權限 -->
+
+<!-- Begin: 同步分機號碼 監聽 設定下載與永久Checkbox -->
+<script type="text/javascript" th:nonce="${cspNonce}">
+    const setDLSyncExtCheckbox = document.querySelector('#setDLSyncExt');
+    const setRecSyncExtCheckbox = document.querySelector('#setRecSyncExt');
+    const hiddenDLSyncExt = document.querySelector('#hiddenDLSyncExt');
+    const hiddenRecSyncExt = document.querySelector('#hiddenRecSyncExt');
+
+    setDLSyncExtCheckbox.addEventListener('change', function () {
+        hiddenDLSyncExt.value = setDLSyncExtCheckbox.checked ? '0' : '1';
+        hiddenRecSyncExt.value = setRecSyncExtCheckbox.checked ? '0' : '1';
+    });
+
+    setRecSyncExtCheckbox.addEventListener('change', function () {
+        hiddenRecSyncExt.value = setRecSyncExtCheckbox.checked ? '0' : '1';
+        hiddenDLSyncExt.value = setDLSyncExtCheckbox.checked ? '0' : '1';
+    });
+</script>
+<!-- End: 同步分機號碼 監聽 設定下載與永久Checkbox -->
+
+<script type="text/javascript" th:nonce="${cspNonce}">
+    let flatpickrStartInstance, flatpickrEndInstance;
+
+    $('#agentIDtable').on('click', '.updateAuditAgentIDOpenBtn', function () {
+        const updateAgentID = $(this).data('id');
+        const updateName = $(this).data('name');
+        if (flatpickrStartInstance) flatpickrStartInstance.destroy();
+        if (flatpickrEndInstance) flatpickrEndInstance.destroy();
+        $.get('/supaudit/getaudit/' + updateAgentID + '/' + updateName, function (data) {
+            // 在回調函數中處理獲取的資料
+            $('input[id="displayagentID"]').val(data.ableAgentID);
+            $('input[id="ableAgentID"]').val(data.ableAgentID);
+            $('input[id="UserName"]').val(data.UserName);
+            $('#upagentstartdate').val(data.AuditStartDate);
+            $('#upagentenddate').val(data.AuditEndDate);
+            data.CanDL === '0' ?$('#dLcheckbox').prop('checked', true) :$('#dLcheckbox').prop('checked', false)
+            data.Setrec === '0' ?$('#reccheckbox').prop('checked', true) :$('#reccheckbox').prop('checked', false)
+
+            flatpickrStartInstance =  $("#upagentstartdate").flatpickr({
+                dateFormat: "Y-m-d H:i:S",
+                allowInput: true,
+                time_24hr: true,
+                enableTime: true,
+                minuteIncrement: 1,
+                defaultHour: 00,
+                onReady() {
+                    this.showTimeInput = true;
+                }
+            });
+
+            flatpickrEndInstance =  $("#upagentenddate").flatpickr({
+                dateFormat: "Y-m-d H:i:S",
+                allowInput: true,
+                time_24hr: true,
+                enableTime: true,
+                minuteIncrement: 1,
+                defaultHour: 00,
+                onReady() {
+                    this.showTimeInput = true;
+                }
+            });
+
+            if (data.AuditStartDate) flatpickrStartInstance.setDate(data.AuditStartDate, true);
+            if (data.AuditEndDate) flatpickrEndInstance.setDate(data.AuditEndDate, true);
+        });
+
+    });
+</script>
+
+<script type="text/javascript" th:nonce="${cspNonce}">
+$('#upAgentForm').submit(function(event) {
+    event.preventDefault();
+
+    const data = {
+        userName: getFieldVal($(this),'UserName'),
+        monitoringUserId: getFieldVal($(this),'monitoringUserId'),
+        monitoringDepId: getFieldVal($(this),'monitoringDepId'),
+        ableAgentID: getFieldVal($(this),'ableAgentID'),
+        auditStartDate: getFieldVal($(this),'AuditStartDate'),
+        auditEndDate: getFieldVal($(this),'AuditEndDate'),
+        canDL:  $("#dLcheckbox").prop("checked") ?'0' :'1',
+        setrec: $("#reccheckbox").prop("checked") ?'0' :'1',
+    }
+
+    $.ajax({
+        url: "/supaudit/updateAgentStatus",
+        type: "POST",
+        contentType:"application/json;charset=utf-8",
+        data: JSON.stringify(data),
+        success: function () {
+            $('#upAgentModal').modal('hide');
+            showMsgAndReload("修改成功");
+        },
+        error: function (error) {
+            console.log("請求失败: " + error);
+        }
+    });
+});
+</script>
+
+<script type="text/javascript" th:nonce="${cspNonce}">
+    $(document).ready(function () {
+        let flatpickrExtStartInstance, flatpickrExtEndInstance;
+        $(".updateAuditExtOpenBtn").click(function () {
+            const updateExt = $(this).data('id');
+            const updateName = $(this).data('name');
+
+            if (flatpickrExtStartInstance) flatpickrExtStartInstance.destroy();
+            if (flatpickrExtEndInstance) flatpickrExtEndInstance.destroy();
+
+            $.get('/supaudit/getauditext/' + updateExt + '/' + updateName, function (data) {
+                // 在回調函數中處理獲取的資料
+                $('input[id="displayext"]').val(data.ableExt);
+                $('input[id="ableExt"]').val(data.ableExt);
+                $('input[id="UserName"]').val(data.UserName);
+                $('#c').val(data.AuditStartDate);
+                $('#upextenddate').val(data.AuditEndDate);
+                data.CanDL === '0' ?$('#extdLcheckbox').prop('checked', true) :$('#extdLcheckbox').prop('checked', false)
+                data.Setrec === '0' ?$('#extreccheckbox').prop('checked', true) :$('#extreccheckbox').prop('checked', false)
+
+                flatpickrExtStartInstance = $("#upextstartdate").flatpickr({
+                    dateFormat: "Y-m-d H:i:S",
+                    allowInput: true,
+                    time_24hr: true,
+                    enableTime: true,
+                    minuteIncrement: 1,
+                    defaultHour: 00,
+                    onReady() {
+                        this.showTimeInput = true;
+                    }
+                });
+                flatpickrExtEndInstance = $("#upextenddate").flatpickr({
+                    dateFormat: "Y-m-d H:i:S",
+                    allowInput: true,
+                    time_24hr: true,
+                    enableTime: true,
+                    minuteIncrement: 1,
+                    defaultHour: 00,
+                    onReady() {
+                        this.showTimeInput = true;
+                    }
+                });
+
+                if (data.AuditStartDate) flatpickrExtStartInstance.setDate(data.AuditStartDate, true);
+                if (data.AuditEndDate) flatpickrExtEndInstance.setDate(data.AuditEndDate, true);
+            });
+
+        });
+    });
+</script>
+<script type="text/javascript" th:nonce="${cspNonce}">
+$('#upExtForm').submit(function(event) {
+    event.preventDefault();
+
+    const data = {
+        userName: getFieldVal($(this),'UserName'),
+        monitoringUserId: getFieldVal($(this),'monitoringUserId'),
+        monitoringDepId: getFieldVal($(this),'monitoringDepId'),
+        ableExt: getFieldVal($(this),'ableExt'),
+        auditStartDate: getFieldVal($(this),'AuditStartDate'),
+        auditEndDate: getFieldVal($(this),'AuditEndDate'),
+        canDL:  $("#extdLcheckbox").prop("checked") ?'0' :'1',
+        setrec: $("#extreccheckbox").prop("checked") ?'0' :'1',
+    };
+    $.ajax({
+        url: "/supaudit/updateExtStatus",
+        type: "POST",
+        contentType:"application/json;charset=utf-8",
+        data: JSON.stringify(data),
+        success: function () {
+            $('#upExtModal').modal('hide');
+            location.reload();
+        },
+        error: function (error) {
+            console.log("請求失敗: " + error);
+        }
+    });
+});
+</script>
+<script type="text/javascript" th:nonce="${cspNonce}">
+$('#agentIdFormId').submit(function(e) {
+    e.preventDefault();
+    $('#syncAgentIdBtn').prop('disabled', true);
+
+    fetch('/supaudit/checkSyncAgentId', {
+        method: "POST",
+        body: `syncDepID=${$('#syncDepID').val()}`,
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded'}
+    })
+        .then(function (response) {
+            if(response.status !== 200){
+                let errorMsg = "";
+                if (response.status === 404) {
+                    errorMsg = '沒有可同步名單，請確認部門管理-調聽部門權限設定';
+                } else if (response.status === 400) {
+                    errorMsg = "同步失敗";
+                }
+                $('#syncAgentID').modal('hide');
+                showMsg(errorMsg);
+                return Promise.reject(new Error('Sync data failed'))
+            }
+        })
+        .then(function(){
+            const data =`syncUserName=${$("#syncSupName").val()}&syncDepID=${$('#syncDepID').val()}&hiddenDLSyncId=${$("#hiddenDLSyncId").val()}&hiddenRecSyncId=${$("#hiddenRecSyncId").val()}`
+            fetch('/supaudit/syncagentid', {
+                method: "POST",
+                body: data,
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded'}
+            })
+                .then(function(){
+                    $('#syncAgentID').modal('hide');
+                    return new Promise(function() {
+                        showMsgAndReload("同步成功");
+                    });
+                })
+        })
+        .catch(() => {
+            setTimeout(function() {
+                $('#syncAgentIdBtn').prop('disabled', false);
+            }, 1500);
+        });
+})
+
+$('#extFormId').submit(function(e) {
+    e.preventDefault();
+    $('#syncExtBtn').prop('disabled', true);
+
+    fetch(`/supaudit/checkSyncExt`, {
+        method: "POST",
+        body: `syncDepID=${$('#syncDepID').val()}`,
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded'}
+    })
+        .then(function (response) {
+            if(response.status !== 200){
+                let errorMsg = "";
+                if (response.status === 404) {
+                    errorMsg = '沒有可同步名單，請確認部門管理-調聽部門權限設定';
+                } else if (response.status === 400) {
+                    errorMsg = "同步失敗";
+                }
+                showMsg(errorMsg);
+                $('#syncExt').modal('hide');
+                return Promise.reject(new Error('Sync data failed'));
+            }
+        })
+        .then(function(){
+            const data =`syncUserName=${$("#syncSupName").val()}&syncDepID=${$('#syncDepID').val()}&hiddenDLSyncExt=${$("#hiddenDLSyncExt").val()}&hiddenRecSyncExt=${$("#hiddenRecSyncExt").val()}`;
+            fetch('/supaudit/syncext', {
+                method: "POST",
+                body: data,
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded'}
+            })
+                .then(function() {
+                    $('#syncExt').modal('hide');
+                    return new Promise(function () {
+                        showMsgAndReload("同步成功");
+                    });
+                })
+        })
+        .catch(() => {
+            setTimeout(function() {
+                $('#syncExtBtn').prop('disabled', false);
+            }, 1500);
+        });
+})
+
+$('#addAuditExt').submit(function(event) {
+    event.preventDefault();
+
+    const data = {
+        auditStartDate: getFieldVal($(this),'AuditStartDate'),
+        auditEndDate: getFieldVal($(this),'AuditEndDate'),
+        ableExt: getFieldVal($(this),'ableExt'),
+        canDL: getFieldVal($(this),'hiddenDLExt'),
+        setrec: getFieldVal($(this),'hiddenRecExt'),
+        monitoringDepId: getFieldVal($(this),'monitoringDepId'),
+        monitoringUserId: getFieldVal($(this),'monitoringUserId'),
+    }
+
+    fetch('/supaudit/addextnum', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+    })
+    .then(response => {
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+            return response.json();
+        } else {
+            return response.text();
+        }
+    })
+    .then(data => {
+        if (data.ErrorCode === 40002){
+            let errStr = '資料儲存失敗!' + '\n';
+            let obj = data.ErrorDetail;
+            let values = Object.keys(obj).map(function(key) {
+                return obj[key][0];
+            });
+            showMsg(errStr + values.join(',').replace(/,/g, "\n"))
+        } else if(data.ErrorCode === 40401){
+            showMsg(data.ErrorPrompt);
+        }else{
+            $('#addAuditExtModal').modal('hide');
+            showMsgAndReload("新增成功");
+        }
+    })
+})
+
+$('#addAuditAgentID').submit(function(event) {
+    event.preventDefault();
+
+    const data = {
+        auditStartDate: getFieldVal($(this),'AuditStartDate'),
+        auditEndDate: getFieldVal($(this),'AuditEndDate'),
+        ableAgentID: getFieldVal($(this),'ableAgentID'),
+        canDL: getFieldVal($(this),'hiddenDL'),
+        setrec: getFieldVal($(this),'hiddenRec'),
+        monitoringDepId: getFieldVal($(this),'monitoringDepId'),
+        monitoringUserId: getFieldVal($(this),'monitoringUserId'),
+    }
+
+    fetch('/supaudit/addagentid', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+    })
+        .then(response => {
+            const contentType = response.headers.get('content-type');
+            if (contentType && contentType.includes('application/json')) {
+                return response.json();
+            } else {
+                return response.text();
+            }
+        })
+        .then(data => {
+            if (data.ErrorCode === 40002){
+                let errStr = '資料儲存失敗!' + '\n';
+                let obj = data.ErrorDetail;
+                let values = Object.keys(obj).map(function(key) {
+                    return obj[key][0];
+                });
+                showMsg(errStr + values.join(',').replace(/,/g, "\n"))
+            } else if(data.ErrorCode === 40401){
+                showMsg(data.ErrorPrompt);
+            }else{
+                $('#addAuditAgentIDModal').modal('hide');
+                showMsgAndReload("新增成功");
+            }
+        })
+})
+</script>
+</body>
+</html>

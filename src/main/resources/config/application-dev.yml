@@ -1,0 +1,33 @@
+server:
+    #address: 192.168.20.127
+    port: 8082
+    ssl:
+        enabled: false
+    servlet:
+        #context-path: /${spring.application.name}
+        session:
+            ## default 30 minute, 1 minute minimum ( m=minute, s=second  )
+            timeout: 10s
+    error:
+        include-stacktrace: NEVER
+
+spring:
+    config:
+        activate:
+            on-profile: dev
+        import:
+            - ${spring.config.location}/hualiteq/application-hualiteq-dev.yml
+            - ${spring.config.location}/ub/application-ub-dev.yml
+            - ${spring.config.location}/ub/datasource/mysql/application-db-dev.yml
+    output:
+        ansi:
+            enabled: DETECT
+
+javamelody:
+    enabled: false
+    
+logging:
+    file:
+        path: /logs
+    level:
+        root: INFO

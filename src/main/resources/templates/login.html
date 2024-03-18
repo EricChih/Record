@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW" xmlns:th="https://www.thymeleaf.org">
+<head>
+
+    <style>
+        input::placeholder {
+            font-weight: bold;
+            opacity: .7;
+        }
+    </style>
+    <!-- Bootstrap core JavaScript-->
+    <script th:src="@{/assets/vendor/jquery/jquery.min.js}"></script>
+    <script th:src="@{/assets/vendor/bootstrap/js/bootstrap.bundle.min.js}"></script>
+    <!-- Core plugin JavaScript-->
+    <script th:src="@{/assets/vendor/jquery-easing/jquery.easing.min.js}"></script>
+    <!-- Custom scripts for all pages-->
+    <script th:src="@{/assets/js/sb-admin-2.min.js}"></script>
+    <!-- 引入 jQuery 和 Bootstrap JavaScript library -->
+    <script th:src="@{/assets/js/jquery-3.6.0.min.js}" type="text/javascript"></script>
+    <script th:src="@{/assets/js/bootstrap.min.js}" type="text/javascript"></script>
+    <!-- 引入 bootbox.js -->
+    <script th:src="@{/assets/js/bootbox.min.js}" type="text/javascript"></script>
+
+    <script th:src="@{/assets/js/csrf.js}"></script>
+    <link th:href="@{/assets/css/FontAwesomeall.min.css}" rel="stylesheet" type="text/css" />
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <base href="/"/>
+
+    <!-- CSRF 資安防護參數 -->
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <!-- default header name is X-CSRF-TOKEN -->
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+
+    <title>錄音調聽平台</title>
+    <!-- Custom styles for this template-->
+    <link th:href="@{/assets/vendor/fontawesome-free/css/all.min.css}"
+          rel="stylesheet" type="text/css">
+    <link th:href="@{/assets/css/sb-admin-2.min.css}" rel="stylesheet">
+
+    <th:block th:each="users : ${users}">
+        <tr>
+            <td th:text="${users.getStatus()}">...</td>
+        </tr>
+    </th:block>
+</head>
+
+<body class="bg-gradient-primary">
+<div class="container">
+    <!-- Outer Row -->
+    <div class="row justify-content-center">
+        <div class="col-xl-6 col-lg-6 col-md-6">
+            <div class="card o-hidden border-0 shadow-lg my-5">
+                <div class="card-body p-0">
+                    <!-- Nested Row within Card Body -->
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="p-5">
+                                <div class="text-center">
+                                    <h1 class="h4 text-black-50 mb-4">
+                                        <img th:src="@{/assets/img/ub-logo.jpg}" width="70"/>
+                                        錄音調聽平台登入
+                                    </h1>
+                                </div>
+
+                                <!-- Begin Login Form -->
+                                <form class="user" id="loginFormId" name="loginForm" action="perform_login"
+                                      method="post">
+
+                                    <div class="form-group">
+                                        <select
+                                                class="gray-dark form-control nav-link dropdown-toggle"
+                                                name="site" id="site">
+                                            <option th:value="${@environment.getProperty('ub.region.site.kaohsiung.url')}"
+                                                    th:text="${@environment.getProperty('ub.region.site.kaohsiung.name')}"
+                                                    th:selected="${@environment.getProperty('ub.region.site.kaohsiung.url')} ==
+                                                    ${#httpServletRequest.requestURL.toString()}" />
+                                            <option
+                                                    th:value="${@environment.getProperty('ub.region.site.taipei.url')}"
+                                                    th:text="${@environment.getProperty('ub.region.site.taipei.name')}"
+                                                    th:selected="${@environment.getProperty('ub.region.site.taipei.url')} ==
+                                                    ${#httpServletRequest.requestURL.toString()}"/>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <input type="text"
+                                               class="black form-control form-control-user"
+                                               id="usernameId" aria-describedby="emailHelp"
+                                               placeholder="請輸入系統帳號 (6~7碼數字)"
+                                               style="font-size: .88rem; color: #000000" name="username">
+                                    </div>
+                                    <div class="form-group">
+                                        <input type="password"
+                                               class="black form-control form-control-user"
+                                               id="passwordId" placeholder="請輸入密碼 (預設系統帳號)"
+                                               style="font-size: .88rem; color: #000000" name="password">
+                                        <label for="passwordId" id="toggleLabel" style="position: absolute; left: 100%;margin-left: -100px; margin-top: -38px;">
+                                            <button type="button" onclick="togglePassword()" id="toggleButton" style="background-color: white; border: 0px"><i id="eyeIcon" class="far fa-eye-slash"></i></button>
+                                        </label>
+                                    </div>
+
+                                    <!-- CSRF 資安防護 -->
+                                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+
+                                    <input type="submit"
+                                           class="btn btn-primary btn-user btn-block"
+                                           style="font-size: .9rem;" value="登入"
+                                    />
+
+                                </form>
+                                <!-- End: Login Form -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript" th:nonce="${cspNonce}">
+    let locationSelect = document.getElementById('site');
+    locationSelect.addEventListener('change', function(e){
+        window.location = e.target.value;
+    })
+</script>
+
+<script type="text/javascript" th:nonce="${cspNonce}">
+    let isActiveAlert = false;
+    function showMsg(msg, eleId) {
+        // 預設是帳號Input focus
+        let element = eleId || '#usernameId';
+
+        // 避免一次可以出現多個alert視窗
+        if (isActiveAlert) {
+            return;
+        }
+        isActiveAlert = true;
+        bootbox.alert({
+            title: '訊息',
+            message: msg,
+            onEscape: true,
+            callback: function(){
+                setTimeout(function (){
+                    isActiveAlert = false;
+                    $(element).focus();
+                }, 100)
+            }
+        });
+    }
+
+    var urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.has('msg')) {
+        switch(urlParams.get('msg')) {
+            case 'logout':
+                showMsg("登出成功");
+                break;
+            case 'pwdchange':
+                showMsg("變更密碼成功");
+                break;
+            case 'failed':
+                // 給預設值3次
+                let wrongTimes = urlParams.get('wrongTimes');
+                let message = `登入失敗：帳號或密碼錯誤`;
+                if(!isNaN(wrongTimes) && wrongTimes !== "") {
+                    message += `，錯誤超過 ${wrongTimes} 次將鎖定帳號！`;
+                }
+                showMsg(message);
+                break;
+            case 'locked':
+                // 給預設值 Manager
+                let unlockRole = urlParams.get('unlockRole') || 'Manager';
+                showMsg(`登入失敗：帳號已被鎖定，請洽${unlockRole}做密碼重設`);
+                break;
+            case 'disabled':
+                showMsg("登入失敗：帳號己被停用");
+                break;
+            case 'access_denied':
+                showMsg("拒絕訪問");
+                break;
+            case 'session_invalid':
+                showMsg("閒置逾時自動登出");
+                break;
+            case 'session_expired':
+                showMsg("連線已失效");
+                break;
+            case 'session_timeout':
+                showMsg("帳號靜止已逾時，請重新登入");
+                break;
+            default:
+                showMsg("登入失敗");
+        }
+    }else {
+        $("#usernameId").focus();
+    }
+
+    // 註冊submit事件才可以透過鍵盤enter觸發按鈕
+    let form = document.getElementById('loginFormId');
+    form.addEventListener('submit', function(event) {
+        $('input').blur();
+        event.preventDefault();
+        check();
+    });
+
+    function check() {
+        let username = document.getElementById('usernameId').value.trim();
+        let password = document.getElementById('passwordId').value.trim();
+        if (!username) {
+            showMsg( "請輸入帳號");
+            return;
+        }
+        if (!password) {
+            showMsg("請輸入密碼", '#passwordId');
+            return;
+        }
+        $('#loginFormId').submit();
+    }
+
+
+</script>
+<script type="text/javascript" th:nonce="${cspNonce}">
+    document.getElementById('toggleButton').addEventListener('click', togglePassword);
+   function togglePassword() {
+    var passwordInput = document.getElementById('passwordId');
+    var eyeIcon = document.getElementById('eyeIcon');
+
+
+    passwordInput.type = (passwordInput.type === 'password') ? 'text' : 'password';
+
+
+    eyeIcon.className = (passwordInput.type === 'password') ? 'far fa-eye-slash' : 'far fa-eye';
+}
+</script>
+
+</body>
+</html>

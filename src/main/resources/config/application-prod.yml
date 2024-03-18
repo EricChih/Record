@@ -1,0 +1,30 @@
+server:
+    #address: 192.168.20.127
+    port: 8082
+    error:
+        include-stacktrace: NEVER
+
+spring:
+    config:
+        activate:
+            on-profile: prod
+        import:
+            - ${spring.config.location}/hualiteq/application-hualiteq-prod.yml
+            - ${spring.config.location}/ub/application-ub-prod.yml
+            - ${spring.config.location}/ub/datasource/mysql/application-db-prod.yml
+    thymeleaf:
+        cache: true
+    jpa:
+        show-sql: false
+    devtools:
+        restart:
+            enabled: false
+    output:
+        ansi:
+            enabled: NEVER
+
+logging:
+    file:
+        path: /logs
+    level:
+        root: ERROR

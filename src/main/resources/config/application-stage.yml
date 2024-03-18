@@ -1,0 +1,31 @@
+server:
+    #address: 192.168.20.127
+    port: 8082
+    error:
+        include-stacktrace: NEVER
+
+spring:
+    config:
+        activate:
+            on-profile: stage
+        import:
+            - ${spring.config.location}/hualiteq/application-hualiteq-stage.yml
+            - ${spring.config.location}/ub/application-ub-stage.yml
+            - ${spring.config.location}/ub/datasource/mysql/application-db-stage.yml
+    jpa:
+        show-sql: false
+    devtools:
+        restart:
+            enabled: false
+    output:
+        ansi:
+            enabled: DETECT
+
+javamelody:
+    enabled: false
+    
+logging:
+    file:
+        path: /logs
+    level:
+        root: INFO

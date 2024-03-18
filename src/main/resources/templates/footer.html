@@ -1,0 +1,46 @@
+<!DOCTYPE html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-4.dtd">
+<html lang="zh-Hant-TW" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+
+<footer th:fragment="footer">
+    <div class="container my-auto">
+        <div class="copyright text-center my-auto">
+            <!-- 引入 jQuery 和 Bootstrap JavaScript library -->
+            <script th:src="@{/assets/js/jquery-3.6.0.min.js}" type="text/javascript"></script>
+            <script th:src="@{/assets/js/bootstrap.min.js}" type="text/javascript"></script>
+            <!-- 引入 bootbox.js -->
+            <script th:src="@{/assets/js/bootbox.min.js}" type="text/javascript"></script>
+            <script th:src="@{/assets/js/sessionTimer.js}" type="text/javascript" ></script>
+            <span>Hualiteq International Corp. &copy;
+					<script th:nonce="${cspNonce}">
+                        function showMsg(msg) {
+                            bootbox.alert({
+                                title: '訊息',
+                                message: msg,
+                                onEscape: true,
+                            });
+                        }
+
+                        function showMsgAndReload(msg) {
+                            bootbox.alert({
+                                title: '訊息',
+                                message: msg,
+                                onEscape: true,
+                                callback: function () {
+                                    bootbox.hideAll();
+                                    location.reload();
+                                }
+                            });
+                        }
+
+                        function getFieldVal(form, fieldName) {
+                            return form.find(`[name="${fieldName}"]`).val() ?? '';
+                        }
+
+                        var CurrentYear = new Date().getFullYear()
+                        document.write(CurrentYear)
+					</script> All Rights Reserved
+				</span>
+        </div>
+    </div>
+</footer>
+</html>

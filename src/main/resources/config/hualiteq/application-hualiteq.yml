@@ -1,0 +1,29 @@
+hualiteq:
+    security:
+        enabled: true
+        encoder:
+            encode: bcrypt
+        csrf:
+            enabled: true
+            support:
+                allowed-urls: /**
+                allowed-methods: GET,HEAD,TRACE,OPTIONS
+        cors:
+            endpoint-paths: /**
+            allowed-origins: "*"
+            allowed-methods: GET,POST,DELETE,PUT,PATCH,OPTIONS
+            allowed-headers: X-Requested-With,Origin,Content-Type,Accept,Authorization
+            allowed-credentials: false
+            max-age: 4800
+    session:
+        ## allows up to one login for an account. max=-1
+        maximum-sessions: 1
+        ## which determines whether the user should be prevented from opening more sessions than allowed.
+        exception-if-maximum-exceeded: false
+        ## allows the same session.
+        exception-if-the-same-session: true
+        ## defines whether attributes should be migrated to a new session or not. When a user logs in at one place, another user also logs in with that user. The previous login is forced offline. Each login will replace the session with the new session.
+        migrate-session-attributes: true
+    validation:
+        validator:
+            fail-fast: true

@@ -1,0 +1,28 @@
+ub:
+    security:
+        password:
+            encode-key: ub2022ubgir
+    datasource:
+        nas:
+            ## rec nas path
+            wav:
+                rec:
+                    filepath: C:\\data\\ubrecwav\\
+            hiswav:
+                rec:
+                    filepath: C:\\data\\hisrecwav\\
+    region:
+        site:
+            taipei:
+                url: http://127.0.0.1:8082/login
+            kaohsiung:
+                url: http://172.30.104.85:8082/login
+    schedule:
+        cron:
+            expression:
+                ## log delete cron expression daily 4:00am
+                log-dell: 0 0 4 * * ?
+                ## hisRec transfer cron expression daily 2:00am
+                his-rec-trans: 0 0 2 * * ?
+                ## evey 3 min cron expressoin
+                3min: 0 */3 * * * *

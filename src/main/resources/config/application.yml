@@ -1,0 +1,250 @@
+## https://docs.spring.io/spring-boot/docs/current/reference/html/application-properties.html
+## https://docs.spring.io/spring-boot/docs/2.6.6/reference/htmlsingle/#appendix.application-properties
+server:
+    #address: ${spring.cloud.client.ipAddress}
+    ## The default port for HTTP protocol is 8080 and HTTPS is 443
+    port: 8082
+    ssl:
+        enabled: false
+        key-store: classpath:ssl/ubgir-management-ssl-key.p12
+        ## type:JKS,PKCS12
+        key-store-type: PKCS12
+        key-store-password: ENC(zwBQpNX+gpnhFIh1cirJJQ==)
+    ## default : immediate (stop now)
+    shutdown: graceful
+    tomcat:
+        uri-encoding: UTF-8
+        basedir: ${logging.file.path}/tomcat/
+        accesslog:
+            enabled: true
+            pattern: '%t %a - %{client-ip}i "%r" %s %D ms'
+            prefix: access-log
+            suffix: .log
+    servlet:
+        #context-path: /${spring.application.name}
+        encoding:
+            charset: UTF-8
+        session:
+            ## default 30 minute, 1 minute minimum ( m=minute, s=second  )
+            timeout: 30m
+            cookie:
+                http-only: true
+                secure: false
+                ## Strict, Lax, None
+                same-site: strict
+    error:
+        path: /error
+        whitelabel:
+            ## default : true
+            enabled: true
+        include-exception: true
+        ## NEVER, ALWAYS, ON_PARAM (in url (?trace=true))
+        include-stacktrace: NEVER
+        include-message: ALWAYS
+        include-binding-errors: NEVER
+
+spring:
+    ## optional, classpath, file
+    config:
+        location: classpath:config
+        import:
+            - ${spring.config.location}/hualiteq/application-hualiteq.yml
+            - ${spring.config.location}/ub/application-ub.yml
+            - ${spring.config.location}/ub/datasource/mysql/application-db.yml
+    profiles:
+        active: ${maven.profiles.active}
+    application:
+        name: ubgir
+    main:
+        ## default:false
+        allow-circular-references: true
+        #allow-bean-definition-overriding: true
+    http:
+        encoding:
+            enabled: true
+            charset: UTF-8
+            force: true
+    servlet:
+        multipart:
+            enabled: true
+            max-file-size: 10MB
+            max-request-size: 100MB
+    mvc:
+        ## default : false
+        throw-exception-if-no-handler-found: false
+        #static-path-pattern: /static/**
+        #log-request-details: false
+    thymeleaf:
+        enabled: true
+        cache: false
+        encoding: utf-8
+        prefix: classpath:/templates/
+        suffix: .html
+        ## HTML, HTML5, LEGACYHTML5
+        mode: HTML
+        servlet:
+            content-type: text/html
+    datasource:
+        type: com.zaxxer.hikari.HikariDataSource
+    jpa:
+        database-platform: org.hibernate.dialect.MySQLDialect
+        generate-ddl: false
+        show-sql: false
+        open-in-view: true
+        hibernate:
+            ## DDL mode. This is actually a shortcut for the "hibernate.hbm2ddl.auto" property. Defaults to "create-drop" when using an embedded database and no schema manager was detected. Otherwise, defaults to "none".
+            ddl-auto: validate
+            naming:
+                implicit-strategy: org.springframework.boot.orm.jpa.hibernate.SpringImplicitNamingStrategy
+                #physical-strategy: org.springframework.boot.orm.jpa.hibernate.SpringPhysicalNamingStrategy
+                physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+        properties:
+            hibernate:
+                #dialect: org.hibernate.dialect.MySQL8Dialect
+                dialect:
+                    storage_engine: innodb
+                ## create,create-drop,update,validate,none
+                hbm2ddl:
+                    auto: none
+                use_nationalized_character_data: false
+                current_session_context_class: thread
+                auto_quote_keyword: false
+                generate_statistics: false
+                enable_lazy_load_no_trans: true
+                use_sql_comments: false
+                show_sql: false
+                format_sql: true
+                type: debug
+                #cache:
+                    #use_second_level_cache: false
+                jdbc:
+                    ## UTC+8
+                    #time_zone: Asia/Taipei
+                    #batch_size: 50
+                    lob:
+                        non_contextual_creation: true
+    web:
+        resources:
+            #chain:
+                #cache: true
+            cache:
+                period: 0
+            add-mappings: true
+            #static-locations: classpath:/META-INF/resources/, classpath:/resources/, classpath:/static/, classpath:/public/
+    devtools:
+        add-properties: false
+        livereload:
+            enabled: true
+            ## default 35729
+            #port: 35802
+        restart:
+            enabled: true
+            quiet-period: 400ms
+            additional-paths: src/main/java
+    output:
+        ansi:
+            ## DETECT, ALWAYS, NEVER
+            enabled: ALWAYS
+            
+management:
+    server:
+        #address: ${spring.cloud.client.ipAddress}
+        port: ${server.port:8081}
+        ssl:
+            enabled: false
+    endpoint:
+        logfile:
+            enabled: true
+            external-file: ${logging.file.path}/${logging.file.name}.log
+    endpoints:
+        enabled-by-default: true
+        web:
+            base-path: /actuator
+            exposure:
+                include: "*"
+    info:
+        env:
+            enabled: true
+        java:
+            enabled: true
+
+jasypt:
+    encryptor:
+        password: ubgirCipher
+        algorithm: PBEWithMD5AndDES
+        iv-generator-classname: org.jasypt.iv.NoIvGenerator
+
+springdoc:
+    swagger-ui:
+        enabled: true
+        ## default page : http://127.0.0.1:8080/swagger-ui.html
+        #path: /swagger-ui.html
+        operationsSorter: method
+    api-docs:
+        enabled: true
+        #path: /api-docs
+    show-actuator: false
+    #default-consumes-media-type: application/json,application/xml
+    
+javamelody:
+    ## Enable JavaMelody auto-configuration (optional, default: true)
+    ## http://127.0.0.1:8080/monitoring
+    enabled: true
+    ## Data source names to exclude from monitoring (optional, comma-separated)
+    excluded-datasources: secretSource,topSecretSource
+    ## Enable monitoring of Spring services and controllers (optional, default: true)
+    spring-monitoring-enabled: true
+    ## Enable the "monitoring" management endpoint and expose it over http
+    #management-endpoint-monitoring-enabled: true
+    ## Initialization parameters for JavaMelody (optional)
+    ## See: https://github.com/javamelody/javamelody/wiki/UserGuide#6-optional-parameters
+    init-parameters:
+        ## log http requests:
+        log: true
+
+logging:
+    ## To Windows:C:\DOCUME~1\user\LOCALS~1\Temp\ or C:\Users\user\AppData\Local\Temp\xxxxx
+    ## To Linux:/tmp
+    file:
+        ## ${java.io.tmpdir}/xxxxx/
+        path: /logs
+        name: ${spring.application.name}
+    config: ${spring.config.location}/logback-spring.xml
+    charset:
+        file: UTF-8
+        console: UTF-8
+    pattern:
+        dateformat: yyyy-MM-dd HH:mm:ss.SSS
+    logback:
+        rollingpolicy:
+            clean-history-on-start: false
+            max-file-size: 1MB
+            max-history: 1
+            total-size-cap: 500MB
+    level:
+        ## DEBUG, INFO, WARN, ERROR
+        root: INFO
+    group:
+        spring: org.springframework
+        project: com.hualiteq
+
+debug: false
+
+info:
+    app:
+        name: ${spring.application.name}
+        profile: ${spring.config.activate.on-profile}
+        type: application
+        ipAddress: ${spring.cloud.client.ip-address:${server.address:127.0.0.1}}
+        port: ${server.port}
+        appName: ${maven.app.name}
+        appVersion: ${maven.app.version}
+        appPackagingType: ${maven.app.packagingType}
+
+---
+
+spring:
+    config:
+        activate:
+            on-profile: default
+            

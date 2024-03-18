@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <base href="/" />
+
+    <title>音檔播放</title>
+    <!-- Custom fonts for this template -->
+    <link th:href="@{/assets/vendor/fontawesome-free/css/all.min.css}" rel="stylesheet" type="text/css">
+    <!-- Custom styles for this template -->
+    <link th:href="@{/assets/css/sb-admin-2.css}" rel="stylesheet" type="text/css">
+
+</head>
+
+<body id="page-top">
+<div class="modal-content">
+    <div class="modal-header" style="background-color: #19b9b9;">
+        <h5 class="modal-title text-white" id="recordPlayModalLabel">音檔播放</h5>
+    </div>
+    <div class="modal-body">
+        <div class="form-group" style="text-align: center;">
+            <input type="hidden" id="recordurl" th:value="${recordurl}"/>
+            <input type="hidden" id="recordgvp" th:value="${recordgvp}"/>
+            <input type="hidden" id="begintime" th:value="${begintime}"/>
+            <div id="waveform"></div>
+            <div id="timeline"></div>
+
+            <div style="color:#007979; font-weight:bold;">
+                <!-- 播放與暫停鍵 -->
+                <input type="hidden" id="playpausecontrol" value="play"/>
+                <a  class="btn btn-warning btn-circle btn-sm" id="playpause" >
+                    <em id="playicon" class="fas fa-play"></em>
+                </a>
+                <!-- Mute鍵 -->
+                <input type="hidden" id="mutecontrol" value="mutefalse"/>
+                <a  class="btn btn-danger btn-circle btn-sm" id="mute" >
+                    <em id="muteicon" class="fas fa-volume-up"></em>
+                </a>
+                <!-- 下載link -->
+                <!--                            	<a class="btn btn-success btn-circle btn-sm" id="downloadbtn" href="/play/123.wav" download="test" >-->
+                <!--                            	   <em class="fas fa-download"></em>-->
+                <!--                            	</a>-->
+                <!--播放速度下拉選單-->
+                <span style="margin-left:50px;">播放速度：</span>
+                <select class="form-control" id="rate" style="width:20%; display:inline!important;">
+                    <option value="0.5">0.5</option>
+                    <option value="0.75">0.75</option>
+                    <option value="1.0" selected>1.0</option>
+                    <option value="1.25">1.25</option>
+                    <option value="1.5">1.5</option>
+                    <option value="1.75">1.75</option>
+                </select>
+
+            </div>
+        </div>
+        <div id="recfileinfo">
+            <label class="small mb-1" style="color:#007979; font-weight:bold;" >撥號者:</label>
+            <span th:text="${therec.getAni()}"></span><br/>
+            <label class="small mb-1" style="color:#007979; font-weight:bold;" >接聽者:</label>
+            <span th:text="${therec.getDnis()}"></span><br/>
+            <label class="small mb-1" style="color:#007979; font-weight:bold;" >長度:</label>
+            <span th:text="${therec.getLengthhhmmss()}"></span><br/>
+            <label class="small mb-1" style="color:#007979; font-weight:bold;" >起始時間:</label>
+            <span th:text="${therec.getStartDate()}"></span><br/>
+            <label class="small mb-1" style="color:#007979; font-weight:bold;" >結束時間:</label>
+            <span th:text="${therec.getEndDate()}"></span>
+        </div>
+
+    </div>
+</div>
+
+<!-- Bootstrap core JavaScript-->
+<script th:src="@{/assets/vendor/jquery/jquery.min.js}" type="text/javascript"></script>
+<script th:src="@{/assets/vendor/wavesurfer/wavesurfer-v7.min.js}"></script>
+<script th:src="@{/assets/vendor/wavesurfer/wavesurfer-v7.timeline.min.js}"></script>
+
+<script th:nonce="${cspNonce}">
+
+
+    //下載寫進log
+    /*
+    $('#downloadbtn').on('click',function(){
+   	 $.ajax({
+		 	type: 'GET',
+  	    url: '/record/writelogdownloadaudio/' + $('#recordgvp').val(),
+		});
+    });*/
+
+    $('#waveform').empty();
+
+
+    //正式環境音檔位置
+    var recordgvp = $('#recordgvp').val().replace('$','/');
+    var recordurl = $('#recordurl').val();
+    $('#downloadbtn').prop("href", recordurl);
+    $('#downloadbtn').prop("download", recordgvp);
+    //音軌
+    let wavesurfer = WaveSurfer.create({
+        container: '#waveform',
+        waveColor: 'hsla(200, 100%, 30%, 0.5)',
+        barWidth: 0,
+        progressColor: 'gray',
+        cursorColor: 'black',
+        splitChannels: true,
+        splitChannelsOptions: {
+            overlay: false,
+            channelColors: {
+                0: {cursorColor: '#fff'},
+                1: {cursorColor: '#fff'}
+            }
+        },
+        url: recordurl,
+    });
+    // add timeline
+    wavesurfer.registerPlugin(WaveSurfer.Timeline.create());
+
+    //播放暫停按鈕
+    $(document).on('click', '#playpause', function() {
+
+        var recordgvp = $('#recordgvp').val();
+        if($('#playpausecontrol').val() == 'pause'){
+            $('#playicon').removeClass('fa-pause').addClass('fa-play');
+            $('#playpausecontrol').val('play');
+            wavesurfer.pause();
+
+        }else{
+            $('#playicon').removeClass('fa-play').addClass('fa-pause');
+            $('#playpausecontrol').val('pause');
+            wavesurfer.play();
+        }
+
+
+    });
+
+    //音檔改變撥放速度
+    $(document).on('change', '#rate', function() {
+        wavesurfer.setPlaybackRate($('#rate').val());
+    });
+
+    //靜音
+    $(document).on('click', '#mute', function() {
+
+        if($('#mutecontrol').val() == 'mutefalse'){
+            $('#muteicon').removeClass('fa-volume-up').addClass('fa-volume-off');
+            $('#mutecontrol').val('mutetrue');
+            wavesurfer.setMuted(true);
+        }else{
+            $('#muteicon').removeClass('fa-volume-off').addClass('fa-volume-up');
+            $('#mutecontrol').val('mutefalse');
+            wavesurfer.setMuted(false);
+        }
+    });
+
+    //關閉視窗重新載入，切斷所有連結
+    $(document).on('click', '.closerecordplay', function() {
+        window.location.reload();
+    });
+
+</script>
+</body>
+
+</html>

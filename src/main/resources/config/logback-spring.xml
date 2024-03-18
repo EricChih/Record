@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<configuration debug="false" scan="true" scanPeriod="60 seconds">
+	
+	<contextName>logback</contextName>
+	
+	<!-- Loading order : logback.xml -> application.properties -> logback-spring.xml -->
+	<conversionRule conversionWord="clr" converterClass="org.springframework.boot.logging.logback.ColorConverter" />
+    <conversionRule conversionWord="wex" converterClass="org.springframework.boot.logging.logback.WhitespaceThrowableProxyConverter" />
+    <conversionRule conversionWord="wEx" converterClass="org.springframework.boot.logging.logback.ExtendedWhitespaceThrowableProxyConverter" />
+	
+	<springProperty scope="context" name="CONFIG_LOCATION" source="spring.config.location" defaultValue="config" />
+	<springProperty scope="context" name="APPLICATION_NAME" source="spring.application.name" defaultValue="${maven.app.name}" />
+	<springProperty scope="context" name="PROFILES_NAME" source="spring.config.activate.on-profile" defaultValue="default" />
+	<springProperty scope="context" name="SERVER_IP" source="server.address" defaultValue="127.0.0.1" />
+	<springProperty scope="context" name="SERVER_PORT" source="server.port" defaultValue="8082" />
+	
+	<springProperty scope="context" name="LOG_PATH" source="logging.file.path" defaultValue="./logs" />
+	<springProperty scope="context" name="LOG_FILE" source="logging.file.name" defaultValue="${APPLICATION_NAME}" />
+	<springProperty scope="context" name="LOG_ENCODING" source="logging.charset.file" defaultValue="UTF-8" />
+	<springProperty scope="context" name="LEVEL_ROOT" source="logging.level.root" defaultValue="INFO" />
+	
+	<!-- definition the project log object -->
+	<springProperty scope="context" name="SPRING" source="logging.group.spring" defaultValue="org.springframework" />
+	<springProperty scope="context" name="PROJECT" source="logging.group.project" defaultValue="com" />
+
+	<timestamp key="FULL_TIME" datePattern="yyyyMMdd'T'HHmmss" />
+	<property name="FILE_TYPE" value="gz" />
+	
+    <!-- http://samchu.logdown.com/posts/1591788-how-to-config-logback-spring-xml -->
+    <property name="CONSOLE_LOG_PATTERN" value="${CONSOLE_LOG_PATTERN:-%clr([${APPLICATION_NAME}){blue} %clr(*){highlight}%clr(${PROFILES_NAME}){yellow}%clr(*){highlight}%clr(]){blue} %clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){faint} %clr(${LOG_LEVEL_PATTERN:-%5p}) %clr(${PID:- }){magenta} %clr(---){faint} %clr([%15.15t]){yellow} %clr(%-40.40logger{39}){cyan} %clr(#){green}%clr(%method){cyan}%clr(#){green}%clr(%line){yellow} %clr(:){magenta} %m%n${LOG_EXCEPTION_CONVERSION_WORD:-%wEx}}" />
+	<property name="FILE_LOG_PATTERN" value="${FILE_LOG_PATTERN:-[${APPLICATION_NAME}*${PROFILES_NAME}*] %d{${LOG_DATEFORMAT_PATTERN:-yyyy-MM-dd HH:mm:ss.SSS}} [${HOSTNAME} - ${SERVER_IP}:${SERVER_PORT}] ${LOG_LEVEL_PATTERN:-%5p} ${PID:- } --- [%t] %-40.40logger{39} : %m%n${LOG_EXCEPTION_CONVERSION_WORD:-%wEx}}" />
+	<property name="HTML_LOG_PATTERN" value="%level%date%file%method%line%msg" />
+	
+	<property name="CONSOLE_PATTERN" value="${CONSOLE_LOG_PATTERN}" />
+	<property name="FILE_PATTERN" value="${FILE_LOG_PATTERN}" />
+	<property name="HTML_PATTERN" value="${HTML_LOG_PATTERN}" />
+	
+	<jmxConfigurator />
+	
+	<!-- Define the screen print output ( All ) -->
+    <appender name="ALL_LOG_CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+	    
+		<withJansi>false</withJansi>
+		
+		<encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+			<!--<pattern>[%thread] %highlight(%-5level) %cyan(%logger{15}) - %msg %n</pattern>-->
+            <pattern>${CONSOLE_PATTERN}</pattern>
+			<charset>${LOG_ENCODING}</charset>
+        </encoder>
+		
+    </appender>
+	
+	<!-- Define file generation output ( All ) -->
+	<appender name="ALL_LOG_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		
+		<file>${LOG_PATH}/${LOG_FILE}_all.log</file>
+		
+		<!--<filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>INFO</level>
+        </filter>-->
+		
+		<encoder>
+			<pattern>${FILE_PATTERN}</pattern>
+            <charset>${LOG_ENCODING}</charset>
+        </encoder>
+		
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			
+			<!-- daily rollover -->
+			<fileNamePattern>${LOG_PATH}/%d{yyyyMMdd}/all/${LOG_FILE}_all.%d{yyyy-MM-dd}.%i.${FILE_TYPE}</fileNamePattern>
+
+			<!-- or whenever the file size reaches 20MB -->
+			<timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+				<maxFileSize>${LOGBACK_ROLLINGPOLICY_MAX_FILE_SIZE}</maxFileSize>
+			</timeBasedFileNamingAndTriggeringPolicy>
+			
+			<!-- keep 90 days' worth of history capped at 3GB total size -->
+			<maxHistory>${LOGBACK_ROLLINGPOLICY_MAX_HISTORY}</maxHistory>
+			
+			<totalSizeCap>${LOGBACK_ROLLINGPOLICY_TOTAL_SIZE_CAP}</totalSizeCap>
+			
+			<!-- whether to clear the history log at startup. default is false -->
+			<cleanHistoryOnStart>${LOGBACK_ROLLINGPOLICY_CLEAN_HISTORY_ON_START}</cleanHistoryOnStart>
+			
+		</rollingPolicy>
+		
+		<append>true</append>
+		
+		<!-- set immediateFlush to false for much higher logging throughput -->
+		<immediateFlush>true</immediateFlush>
+		
+	</appender>
+	
+	<!-- Define file generation output ( generate html format file ) -->
+	<appender name="ALL_LOG_HTML" class="ch.qos.logback.core.FileAppender">
+		<file>${LOG_PATH}/${LOG_FILE}.html</file>
+		<encoder class="ch.qos.logback.core.encoder.LayoutWrappingEncoder">
+	        <layout class="ch.qos.logback.classic.html.HTMLLayout">
+	            <pattern>${HTML_PATTERN}</pattern>
+	        </layout>
+	    </encoder>
+	</appender>
+	
+	<!-- Define file generation output ( sync all log file ) -->
+	<appender name="ALL_LOG_FILE_ASYNC" class="ch.qos.logback.classic.AsyncAppender">
+		
+		<!-- By default, when the blocking queue has 20% capacity remaining, it will drop events of level TRACE, DEBUG and INFO, keeping only events of level WARN and ERROR. To keep all events, set discardingThreshold to 0. -->
+		<discardingThreshold>0</discardingThreshold>
+        <queueSize>1024</queueSize>
+		
+		<!-- default : false -->
+		<neverBlock>false</neverBlock>
+		
+        <appender-ref ref="ALL_LOG_FILE" />
+		
+    </appender>
+	
+	<!-- Define html generation output ( sync all log html file ) -->
+	<appender name="ALL_LOG_HTML_ASYNC" class="ch.qos.logback.classic.AsyncAppender">
+		
+		<!-- By default, when the blocking queue has 20% capacity remaining, it will drop events of level TRACE, DEBUG and INFO, keeping only events of level WARN and ERROR. To keep all events, set discardingThreshold to 0. -->
+		<discardingThreshold>0</discardingThreshold>
+        <queueSize>1024</queueSize>
+		
+		<!-- default : false -->
+		<neverBlock>false</neverBlock>
+		
+		<appender-ref ref="ALL_LOG_HTML" />
+		
+    </appender>
+	
+	<shutdownHook class="ch.qos.logback.core.hook.DelayingShutdownHook">
+		<delay>1000</delay>
+	</shutdownHook>
+	
+	<springProfile name="!( dev &amp; stage &amp; prod ) | default">
+		
+		<!-- TRACE < DEBUG < INFO < WARN < ERROR < ALL < OFF (INHERITED or NULL) -->
+		<logger name="${SPRING}" level="INFO" additivity="true" />
+		<logger name="${PROJECT}" level="DEBUG" additivity="true" />
+		
+		<!-- TRACE < DEBUG < INFO < WARN < ERROR < ALL < OFF -->
+		<root level="${LEVEL_ROOT}">
+			<appender-ref ref="ALL_LOG_CONSOLE" />
+			<appender-ref ref="ALL_LOG_FILE_ASYNC" />
+			<appender-ref ref="ALL_LOG_HTML_ASYNC" />
+		</root>
+		
+	</springProfile>
+	
+	<springProfile name="dev">
+		
+		<!-- TRACE < DEBUG < INFO < WARN < ERROR < ALL < OFF (INHERITED or NULL) -->
+		<logger name="${SPRING}" level="INFO" additivity="true" />
+		<logger name="${PROJECT}" level="DEBUG" additivity="true" />
+		
+		<!-- TRACE < DEBUG < INFO < WARN < ERROR < ALL < OFF -->
+		<root level="${LEVEL_ROOT}">
+			<appender-ref ref="ALL_LOG_CONSOLE" />
+			<appender-ref ref="ALL_LOG_FILE_ASYNC" />
+			<appender-ref ref="ALL_LOG_HTML_ASYNC" />
+		</root>
+		
+	</springProfile>
+	
+	<springProfile name="test">
+		
+		<!-- TRACE < DEBUG < INFO < WARN < ERROR < ALL < OFF (INHERITED or NULL) -->
+		<logger name="${SPRING}" level="INFO" additivity="true" />
+		<logger name="${PROJECT}" level="INFO" additivity="true" />
+		
+		<!-- TRACE < DEBUG < INFO < WARN < ERROR < ALL < OFF -->
+		<root level="${LEVEL_ROOT}">
+			<appender-ref ref="ALL_LOG_CONSOLE" />
+			<appender-ref ref="ALL_LOG_FILE_ASYNC" />
+			<appender-ref ref="ALL_LOG_HTML_ASYNC" />
+		</root>
+		
+	</springProfile>
+	
+	<springProfile name="prod">
+		
+		<!-- TRACE < DEBUG < INFO < WARN < ERROR < ALL < OFF (INHERITED or NULL) -->
+		<logger name="${SPRING}" level="ERROR" additivity="true" />
+		<logger name="${PROJECT}" level="WARN" additivity="true" />
+		
+		<!-- TRACE < DEBUG < INFO < WARN < ERROR < ALL < OFF -->
+		<root level="${LEVEL_ROOT}">
+			<appender-ref ref="ALL_LOG_CONSOLE" />
+			<appender-ref ref="ALL_LOG_FILE_ASYNC" />
+		</root>
+		
+	</springProfile>
+	
+</configuration>

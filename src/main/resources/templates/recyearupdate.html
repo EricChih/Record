@@ -1,0 +1,52 @@
+<!DOCTYPE html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-4.dtd">
+<html lang="zh-Hant-TW" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+
+<form action="#" th:action="@{/recyear/update}" th:object="${updatedep}" method="post">
+
+    <div class="form-group">
+        <label class="small mb-1" style="color:#007979; font-weight:bold;" for="disdepid">DepID</label>
+        <input id="disdepid" type="text" class="form-control form-control-user"  name="displayDepID" th:attr="value= ${updatedep.getDepID()}" disabled />
+        <input type="hidden" name="DepID" th:attr="value= ${updatedep.getDepID()}" />
+    </div>
+    <div class="form-group">
+        <label class="small mb-1" style="color:#007979; font-weight:bold;" for="disdepname">部門名稱</label>
+        <input id="disdepname" type="text" class="form-control form-control-user"  name="displayDepName" th:attr="value= ${updatedep.getDepName()}" disabled/>
+        <input type="hidden" name="DepName" th:attr="value= ${updatedep.getDepName()}" />
+    </div>
+    <div class="form-group">
+        <label class="small mb-1" style="color:#007979; font-weight:bold;" for="dissiteid">所在地</label>
+        <input id="dissiteid" class="form-control form-control-user" th:value="${updatedep.getSiteID()}+': '+${sitemap.get('002')}" name="SiteID"  disabled />
+    </div>
+
+    <div class="form-group">
+        <label class="small mb-1" style="color:#007979; font-weight:bold;" for="disreckeepyear">錄音檔保留年份</label>
+        <select class="form-control form-control-user" name="RecKeepYear" id="disreckeepyear">
+            <option th:each="i : ${#numbers.sequence(0, 7)}" th:selected="${i == updatedep.getRecKeepYear()}"
+                    th:value="${i}" th:text="${i}" th:unless="${i == -2}" />
+            <option th:value="${999}" th:selected="${999 == updatedep.getRecKeepYear()}">永久保留</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label class="small mb-1" style="color:#007979; font-weight:bold;" for="disgroupteam">GroupTeam (用;分隔部門代號)</label>
+        <input type="text" id="disgroupteam" class="form-control form-control-user"  name="GroupTeam" th:attr="value= ${updatedep.getGroupTeam()}" />
+        <!--<input type="hidden" name="DepGroupTeam" th:attr="value= ${updatedep.getGroupTeam()}" />-->
+    </div>
+
+    <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">關閉</button>
+        <input id="updateBtn" type="submit" class="btn btn-primary" value="確定修改">
+    </div>
+
+</form>
+    <script type="text/javascript" th:nonce="${cspNonce}">
+        var inputElement = document.getElementById('disgroupteam');
+        var updateBtn = document.getElementById('updateBtn');
+
+        // 監聽更新按鈕點擊事件
+        updateBtn.addEventListener('click', function() {
+            var updatedValue = inputElement.value; // 獲取修改後的值
+            inputElement.setAttribute('value', updatedValue); // 更新 value 屬性
+        });
+    </script>
+</html>

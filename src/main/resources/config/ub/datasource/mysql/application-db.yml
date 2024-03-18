@@ -1,0 +1,44 @@
+ub:
+  datasource:
+    db-1:
+      primary: master
+      replica: slave-1
+      master:
+        host: 127.0.0.1
+        port: 3306
+        schema: none
+        database: ubrecord
+        encoding: UTF-8
+        type: ${spring.datasource.type}
+        driver-class-name: com.mysql.cj.jdbc.Driver
+        url: jdbc:mysql://${ub.datasource.db-1.master.host}:${ub.datasource.db-1.master.port}/${ub.datasource.db-1.master.database}?${ub.datasource.db-1.master.url-properties}
+        url-properties: useUnicode=true&characterEncoding=${ub.datasource.db-1.master.encoding}&autoReconnect=true&allowPublicKeyRetrieval=true&useSSL=false&verifyServerCertificate=false&allowMultiQueries=true&zeroDateTimeBehavior=round&serverTimezone=Asia/Taipei
+        username: root
+        password: ENC(U+GVomfNQW6fdRf4dkVSQg==)
+        pool:
+          poolName: db1Master
+          minimum-idle: 1
+          maximum-pool-size: 10
+          max-lifetime: 800000
+          idle-timeout: 600000
+          connection-timeout: 30000
+
+#external:
+  #datasource:
+    #host: 172.30.104.78
+    #port: 1433
+    #database: gcti_urs
+    #url: jdbc:sqlserver://${external.datasource.host}:${external.datasource.port};${external.datasource.url-properties}
+    #url-properties: databaseName=${external.datasource.database};user=${external.datasource.username};password=${external.datasource.password};
+    #username: ubgcti
+    #password: Crm2@00
+
+external:
+  datasource:
+    host: 172.30.101.62
+    port: 1433
+    database: TP_gcti_urs
+    url: jdbc:sqlserver://${external.datasource.host}:${external.datasource.port};${external.datasource.url-properties}
+    url-properties: databaseName=${external.datasource.database};user=${external.datasource.username};password=${external.datasource.password};
+    username: ubgcti
+    password: Crm2@00

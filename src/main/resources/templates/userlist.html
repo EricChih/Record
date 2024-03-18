@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <th:block th:include="headfragment::common-head"></th:block>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<base href="/" />
+
+    <title>UserList</title>
+
+    <!-- Custom fonts for this template -->
+    <link th:href="@{/assets/vendor/fontawesome-free/css/all.min.css}" rel="stylesheet" type="text/css">
+
+    <!-- Custom styles for this template -->
+    <link th:href="@{/assets/css/sb-admin-2.min.css}" rel="stylesheet" type="text/css">
+
+    <!-- Custom styles for this page -->
+    <link th:href="@{/assets/vendor/datatables/dataTables.bootstrap4.min.css}" rel="stylesheet" type="text/css">
+
+</head>
+
+<body id="page-top" class="bg-light">
+
+    <!-- Page Wrapper -->
+    <div id="wrapper" class="whole-content">
+
+        <!-- Begin: Sidebar -->
+        <ul th:include="sidebar::sidebar" class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
+        </ul>
+        <!-- End: Sidebar -->
+
+        <!-- Content Wrapper -->
+        <div id="content-wrapper" class="d-flex flex-column">
+
+            <!-- Main Content -->
+            <div id="content">
+
+                <!-- Begin: Topbar Header -->
+                <nav th:include="header::header" class="navbar navbar-expand topbar mb-1 static-top shadow bg-dark">
+                </nav>
+                <!-- End: Topbar Header -->
+
+                <!-- Begin Page Content -->
+                <div class="container-fluid">
+
+                    <!-- DataTales Example -->
+                    <div class="card mb-4">
+                        <div class="card-header bg-primary">
+                            <h6 class="m-0 font-weight-bold text-white">人員管理
+                            <!-- Add Button -->
+							<a href="#" class="btn btn-warning btn-circle btn-sm" id="addUserButton" data-bs-dismiss="modal" data-bs-toggle="modal" data-bs-target="#addUserModal">
+	                           <i class="fas fa-plus"></i>
+	                        </a>
+							</h6>
+                        </div>
+                        <div class="card-body">						     
+							 
+							<!-- Begin: Search fields -->
+                            <form action="#" th:action="@{/user/search}" th:object="${userSearchForm}" method="post" id="userSearchForm">
+                            <div class="form-group row">
+                                    <div class="col-sm-3 mb-2 mb-sm-0">
+                                        <label class="small mb-1" style="color:#007979; font-weight:bold;" for="searchName">登入帳號</label>
+                                        <input type="text" class="form-control form-control-user"
+                                               th:field="*{name}"
+                                               id="searchName"  />
+                                    </div>
+                                    <div class="col-sm-3">
+                                        <label class="small mb-1" style="color:#007979; font-weight:bold;" for="searchlastname">姓氏</label>
+                                        <input type="text" class="form-control form-control-user" id="searchlastname"
+                                               th:field="*{lastName}" />
+                                    </div>
+									<div class="col-sm-3">
+                                        <label class="small mb-1" style="color:#007979; font-weight:bold;" for="searchFirstName">名字</label>
+                                        <input type="text" class="form-control form-control-user" id="searchFirstName"
+                                               th:field="*{firstName}"  />
+                                    </div>
+                                    <div class="col-sm-3">
+                                        <label class="small mb-1" style="color:#007979; font-weight:bold;" for="searchAgentID">AgentID</label>
+                                        <input type="text" class="form-control form-control-user" id="searchAgentID"
+                                               th:field="*{agentId}" />
+                                    </div>
+                                    <div class="col-sm-3">
+                                        <label class="small mb-1" style="color:#007979; font-weight:bold;" for="searchDepID">部門</label>
+                                        <select class="form-control form-control-user" id="searchDepID" th:field="*{depId}">
+                                            <option value="">請選擇</option> 
+                                            <th:block th:each="dep: ${depmap}">
+                                            	<option th:value="${dep.key}" th:text="${dep.value}"  />
+                                            </th:block>
+                                        </select>
+                                    </div>
+									<div class="col-sm-3 mb-2 mb-sm-0">
+                                        <label class="small mb-1" style="color:#007979; font-weight:bold;" for="adduserrole">角色</label>
+                                        <span th:switch="${loginuser.getRole()}"> 
+											<span th:case="'manager'">  <!-- IF user IS mgr -->
+												<select class="form-control form-control-user" id="adduserrole" th:field="*{role}">
+                                                    <option value="supervisor">supervisor</option>
+                    							</select>					
+											</span>
+											<span th:case="*">
+												<select class="form-control form-control-user" id="adduserrole" th:field="*{role}">
+                           							<option value="">請選擇</option>
+                                                    <th:block th:each="role: ${rolemap}">
+                                                        <option th:value="${role.key}" th:text="${role.value}"></option>
+                           							</th:block>                            
+                    							</select>					
+											</span> 
+										</span>                        
+                                    </div>
+									<div class="col-sm-3 mb-2 mb-sm-0">
+                                        <label class="small mb-1" style="color:#007979; font-weight:bold;" for="searchExt">分機號碼</label>
+                                        <input type="text" class="form-control form-control-user" id="searchExt"
+                                               th:field="*{ext}" />
+                                    </div>
+
+                                <div class="col-sm-3 mb-2 mb-sm-0">
+                                    <label class="small mb-1" style="color:#007979; font-weight:bold;" for="searchStatus">狀態</label>
+                                    <select class="form-control form-control-user" id="searchStatus" th:field="*{status}" >
+                                        <option value="">請選擇</option>
+                                        <option value="0" >已鎖定</option>
+                                        <option value="1" >使用中</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="d-sm-flex align-items-center justify-content-center mb-2">
+                                    <input id="resetBtn" type="button" class="btn btn-primary shadow-sm mr-2 px-4  d-sm-inline-block" value="重設"  />
+                                    <input type="submit" class="btn btn-primary shadow-sm mr-2 px-4  d-sm-inline-block" value="查詢" />                         
+                            </div>
+                            </form>
+                            <!-- End: Search fields -->
+                            
+                            <hr>						
+						
+						    <!-- Begin: Table Listing -->
+							<div class="table-responsive" style="position: relative;">
+							    <button id="exportBtn" class="btn btn-primary shadow-sm p-1 mb-2" style="position: absolute; left: 150px; top: 0px; z-index: 999;">
+                                    匯出Excel
+								</button>
+                                <table class="table table-bordered userlisttable" id="dataTable_noSearch_3rd" width="100%" cellspacing="0">
+                                    <thead style="white-space: nowrap">
+                                        <tr>
+                                            <th data-orderable="false">刪除/修改</th>
+                                            <th data-orderable="false">音檔權限</th>
+                                            <th>登入帳號</th> <!-- Name -->
+                                            <th>姓名</th> <!-- FirstName+ LastName -->
+                                            <th>角色</th> <!-- Role -->
+                                            <th>部門</th> <!-- DepID -->
+                                            <th>所在地</th>  <!-- Location: 002=台北; 007=高雄 -->
+											<th>狀態</th>	   <!-- Status: 1=使用中; 0=停用 -->						
+											<!--   <th>調聽權限</th> //做獨立頁面 -->
+											<th>重置密碼</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody style="white-space: nowrap">
+                                        <th:block th:each="users : ${users}">
+                                        <tr>
+                                            <td>
+                                               <!-- IF 如果是本人,不顯示delete button -->
+                                               <span th:if="${users.getName() == #authentication.getPrincipal().getUsername()}">
+                                                 本人
+                                               </span>
+                                               <!-- Else 如果非本人,顯示delete button -->
+                                               <span th:unless="${users.getName()== #authentication.getPrincipal().getUsername()}">
+                                                 <a href="#" th:attr="data-id=${users.getName()}" class="openDelDialog btn btn-danger btn-circle btn-sm" data-bs-toggle="modal" data-bs-target="#uDeleteModal">
+	                            		           <i class="fas fa-trash"></i>
+	                            		        </a>
+                                               </span>
+											    <!-- 修改button -->
+												<a href="#" th:attr="data-id=${users.getName()}" class="uUpdateOpenBtn btn btn-warning btn-circle btn-sm" data-bs-dismiss="modal" data-bs-toggle="modal" data-bs-target="#uUpdateModal">
+	                            		           <i class="fas fa-edit"></i>
+	                            		        </a>
+											</td>
+											<!-- supervisor 音檔權限 -->
+											<td th:if="${users.getRole()=='supervisor'}">
+												<a th:href="@{/supaudit/getaudit/{id}(id=${users.getID()})}" class="uRuleOpenBtn btn btn-info btn-circle btn-sm" >
+	                            		           <i class="fas fa-bell"></i>
+	                            		        </a>										
+											</td>
+											<td th:unless="${users.getRole()=='supervisor'}">
+												免設									
+											</td>
+                                            <td th:text="${users.getName()}">...</td>
+                                            <td th:text="${users.getLastName()+' '+users.getFirstName()}">...</td>
+                                            <td th:text="${users.getRole()}">...</td>
+                                            <td th:text="${depmap.get(users.getDepID())}">...</td>
+                                            <td th:text="${users.getLocationCN()}">...</td>
+                                            <td th:text="${users.getStatusCN()}">...</td>
+											<td>
+											    <!-- 密碼重置button -->
+												<a href="#" th:attr="data-id=${users.getName()}" class="openResetDialog btn btn-primary btn-circle btn-sm" data-bs-dismiss="modal" data-bs-toggle="modal" data-bs-target="#uResetModal">
+	                            		           <i class="fas fa-reply"></i>
+	                            		        </a>	                  
+											</td>
+										</tr>                                    
+                                        </th:block>             
+                                    </tbody>
+                                </table>
+                            </div>
+							<!-- End: Table Listing -->
+                        </div>
+                    </div>
+
+                </div>
+                <!-- /.container-fluid -->
+
+            </div>
+            <!-- End of Main Content -->
+
+            <!-- Begin: Footer -->
+            <footer th:include="footer::footer" class="sticky-footer bg-white">               
+            </footer>
+            <!-- End of Footer -->
+
+        </div>
+        <!-- End of Content Wrapper -->
+
+    </div>
+    <!-- End of Page Wrapper -->
+
+    <!-- Scroll to Top Button-->
+    <a class="scroll-to-top rounded" href="#page-top">
+        <i class="fas fa-angle-up"></i>
+    </a>
+
+    <!-- Begin: Logout Modal-->
+    	<!-- Move to Footer Area for reuse -->
+    <!-- End: Logout Modal-->
+    
+    <!-- Begin: Popup Add User ============================================== -->
+    <div class="modal fade" id="addUserModal" tabindex="-1" role="dialog" aria-labelledby="addUserModalLabel" aria-hidden="true">
+        <form id="addform">
+       <div class="modal-dialog" role="document">
+          <div class="modal-content">
+             <div class="modal-header bg-primary">
+                <h6 class="modal-title text-white" id="addUserModalLabel">新增人員</h6>
+                <button type="button" class="close text-white" data-bs-dismiss="modal" aria-label="Close">
+                 <span aria-hidden="true">&times;</span>
+                </button>
+             </div>
+               <div class="modal-body addformbody">
+                <div class="form-group">
+                    <span class="fas fas-danger fa-fw fa-cog" style="color:red"></span>
+                    <label class="small mb-1" style="color:#007979; font-weight:bold;" for="addname">登入帳號</label>
+                    <input type="text" class="form-control form-control-user" id="addname" name="Name" minlength="7" maxlength="7" placeholder="請輸入登入帳號(純數字)" required>
+                </div>
+                <div class="form-group">
+                    <span class="fas fas-danger fa-fw fa-cog" style="color:red"></span>
+                    <label class="small mb-1" style="color:#007979; font-weight:bold;" for="addlastname">姓氏</label>
+                    <input type="text" class="form-control form-control-user" id="addlastname" name="LastName" placeholder="請輸入姓氏" maxlength="20" required >
+                </div>
+                <div class="form-group">
+                    <span class="fas fas-danger fa-fw fa-cog" style="color:red"></span>
+                    <label class="small mb-1" style="color:#007979; font-weight:bold;" for="addfirstname">名字</label>
+                    <input type="text" class="form-control form-control-user" id="addfirstname" name="FirstName" placeholder="請輸入名字" maxlength="20" required>
+                </div>
+                <div class="form-group">
+                    <span class="fas fas-danger fa-fw fa-cog" style="color:red"></span>
+                    <label class="small mb-1" style="color:#007979; font-weight:bold;" for="adduserrole">角色</label>
+					<span th:switch="${loginuser.getRole()}"> 
+						<span th:case="'manager'">  <!-- IF user IS mgr -->
+							<select class="form-control form-control-user" id="adduserrole" name="Role" placeholder="請選擇角色權限">
+                           		<option value="supervisor">supervisor</option>                          
+                    		</select>					
+						</span>
+						<span th:case="*">
+							<select class="form-control form-control-user" id="adduserrole" name="Role" placeholder="請選擇角色權限">
+                           		<th:block th:each="role: ${rolemap}">
+                                	<option th:value="${role.key}" th:text="${role.value}" />
+                           		</th:block>                            
+                    		</select>					
+						</span> 
+					</span>
+              	</div>
+                <div class="form-group">
+                    <span class="fas fas-danger fa-fw fa-cog" style="color:red"></span>
+                    <label class="small mb-1" style="color:#007979; font-weight:bold;" for="depid">部門</label>
+                    <select class="form-control form-control-user" id="depid" name="DepID"> 
+                           	<th:block th:each="dep: ${depmap}">
+                              <option th:value="${dep.key}" th:text="${dep.value}" />
+							</th:block>
+                    </select>
+                </div>
+             </div>
+             <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">關閉</button>
+                 <input type="submit"  class="btn btn-primary" value="新增">
+             </div>
+         </div>
+      </div>
+      </form>
+    </div>
+    <!-- End: Popup Add User ==============================================-->
+    
+    <!-- Begin: Popup OFF Delete User Confirm -->
+    <div class="modal fade" id="uDeleteModal" tabindex="-1" role="dialog" aria-labelledby="uDeleteModalLabel" aria-hidden="true">
+       <form id="userDeleteForm">
+       <div class="modal-dialog" role="document">
+          <div class="modal-content">
+             <div class="modal-header" style="background-color: #159C91;">
+                <h5 class="modal-title text-white" id="exampleModalLabel">人員刪除</h5>
+                <button type="button" class="close text-white" data-bs-dismiss="modal" aria-label="Close">
+                 <span aria-hidden="true">&times;</span>
+                </button>
+             </div>
+             <div class="modal-body">
+                <div class="form-group">
+                    <label class="small mb-1" style="color:#007979; font-weight:bold; font-size:18px" for="delUsername">確定刪除此人員帳號?</label>
+                    <input type="hidden" id="delUsername" name="delUsername" value="" />
+                    <h4 id="showDelName"></h4>
+                </div>
+             </div>
+             <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">關閉</button>
+                <input type="submit" class="btn btn-primary" value="確定刪除">
+             </div>
+          </div>
+        </div>
+        </form>
+     </div>
+     <!-- End: Popup OFF User Confirm ======================================== -->
+     
+     <!-- Begin: Popup Reset PWD Confirm -->
+    <div class="modal fade" id="uResetModal" tabindex="-1" role="dialog" aria-labelledby="uResetModalLabel" aria-hidden="true">
+       <form id="resetform">
+       <div class="modal-dialog" role="document">
+          <div class="modal-content">
+             <div class="modal-header" style="background-color: #159C91;">
+                <h5 class="modal-title text-white" id="exampleModalLabel">人員啟動/密碼重設</h5>
+                <button type="button" class="close text-white" data-bs-dismiss="modal" aria-label="Close">
+                 <span aria-hidden="true">&times;</span>
+                </button>
+             </div>
+             <div class="modal-body">
+                <div class="form-group">
+                    <label class="small mb-1" style="color:#007979; font-weight:bold; font-size:18px" for="resetUsername">確定此人員帳號密碼重設?</label>
+                    <input type="hidden" id="resetUsername" name="resetUsername" value="" />
+                    <h4 id="showResetName"></h4>
+                </div>
+             </div>
+             <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">關閉</button>
+                <input type="submit" class="btn btn-primary" value="確定重設">
+             </div>
+          </div>
+        </div>
+        </form>
+     </div>
+     <!-- End: Popup Reset Pwd Confirm ======================================== -->
+    
+     <!-- Begin: Popup Update User ========================================== -->
+    <div class="modal fade" id="uUpdateModal" tabindex="-1" role="dialog" aria-labelledby="uUpdateModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document" style="width: 50%;">
+          <div class="modal-content">
+             <div class="modal-header" style="background-color: #159C91;">
+                <h5 class="modal-title text-white" id="uUpdateModalLabel">修改人員資料</h5>
+                <button type="button" class="close text-white" data-bs-dismiss="modal" aria-label="Close">
+                 <span aria-hidden="true">&times;</span>
+                </button>
+             </div>
+            <form id="userUpdateForm" >
+             <div class="modal-body">
+                     <div class="form-group">
+                         <label class="small mb-1" style="color:#007979; font-weight:bold;" for="disname">帳號</label>
+                         <input id="disname" type="text" class="form-control form-control-user"
+                                disabled maxlength="7"/>
+                         <input type="hidden" id="name" name="name" />
+                         <input type="hidden" id="userId" name="userId"/>
+                     </div>
+                     <div class="form-group">
+                         <label class="small mb-1" style="color:#007979; font-weight:bold;" for="dislastname">姓</label>
+                         <input id="dislastname" type="text" class="form-control form-control-user" name="LastName" maxlength="20"/>
+                     </div>
+                     <div class="form-group">
+                         <label class="small mb-1" style="color:#007979; font-weight:bold;" for="disfistname">名字</label>
+                         <input id="disfistname" type="text" class="form-control form-control-user" name="FirstName" maxlength="20"/>
+                     </div>
+                     <div class="form-group">
+                         <label class="small mb-1" style="color:#007979; font-weight:bold;" for="uRole">角色</label>
+<!--                            <span th:case="'manager'">  &lt;!&ndash; IF user IS mgr &ndash;&gt;-->
+                                <select class="form-control form-control-user"
+                                        id="uRole" name="Role">
+                                </select>
+<!--                            </span>-->
+<!--                            <span th:case="*">-->
+<!--                                <select class="form-control form-control-user" id="uRole" name="Role">-->
+<!--                                    <th:block th:each="role: ${rolemap}">-->
+<!--                                        <option th:value="${role.key}" th:text="${role.value}"-->
+<!--                                                th:selected="${role.key == updateuser.getRole()}"/>-->
+<!--                                    </th:block>-->
+<!--                                </select>-->
+<!--                            </span>-->
+                     </div>
+                     <div class="form-group">
+                         <label class="small mb-1" style="color:#007979; font-weight:bold;" for="udepid">部門</label>
+                         <select class="form-control form-control-user" id="udepid" name="DepID">
+                             <option th:each="dep: ${depmap}" th:value="${dep.key}"
+                                     th:text="${dep.value}" ></option>
+                         </select>
+                     </div>
+                     <div class="form-group">
+                         <label class="small mb-1" style="color:#007979; font-weight:bold;" for="disstatus">狀態</label>
+                         <select class="form-control form-control-user" name="Status" id="disstatus">
+                             <option value="1" >啟用中</option>
+                             <option value="0" >停用</option>
+                         </select>
+                     </div>
+                     <div class="modal-footer">
+                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">關閉</button>
+                         <input type="submit" class="btn btn-primary" value="確定修改">
+                     </div>
+             </div>
+            </form>
+           </div>
+        </div>
+    </div>
+    <!-- End: Popup Update User ============================================ -->
+
+    <!-- Bootstrap core JavaScript-->
+    <script th:src="@{/assets/vendor/jquery/jquery.min.js}" type="text/javascript"></script>
+    <script th:src="@{/assets/vendor/bootstrap/js/bootstrap.bundle.min.js}" type="text/javascript"></script>
+
+    <!-- Core plugin JavaScript-->
+    <script th:src="@{/assets/vendor/jquery-easing/jquery.easing.min.js}" type="text/javascript"></script>
+
+    <!-- Custom scripts for all pages-->
+    <script th:src="@{/assets/js/sb-admin-2.min.js}" type="text/javascript"></script>
+
+    <!-- Page level plugins -->
+    <script th:src="@{/assets/vendor/datatables/jquery.dataTables.min.js}" type="text/javascript"></script>
+    <script th:src="@{/assets/vendor/datatables/dataTables.bootstrap4.min.js}" type="text/javascript"></script>
+
+    <!-- Page level custom scripts -->
+    <script th:src="@{/assets/js/demo/datatables-demo.js}" type="text/javascript"></script>
+    <script th:src="@{/assets/js/bootstrap.bundle.min.js}" type="text/javascript"></script>
+
+    <!-- Export Table to Excel tool -->
+    <script th:src="@{/assets/vendor/sheetjs/dist/xlsx.full.min.js}" type="text/javascript"></script>
+
+    <script type="text/javascript" th:nonce="${cspNonce}">
+        $('.table').on('click', '.uUpdateOpenBtn', function(){
+            var updateName = $(this).data('id');
+            $.ajax({
+                url: "/user/get/"+updateName,
+                type: "GET",
+                contentType: 'application/json',
+                success: function(res) {
+                    $('#userId').val(res.id);
+                    $('#name').val(res.name);
+                    $('#disname').val(res.name);
+                    $('#dislastname').val(res.lastName);
+                    $('#disfistname').val(res.firstName);
+                    let roleOptions="";
+                    for (var prop in res.rolemap) {
+                        roleOptions += '<option value=' + prop + '>' + res.rolemap[prop] + '</option>';
+                    }
+                    $('#uRole').html(roleOptions);
+                    $('#uRole').val(res.role);
+                    $('#udepid').val(res.depID);
+                    $('#disstatus').val(res.status);
+                },
+                error: function(xhr, status, error) {
+                    showMsg("取得編輯資料失敗")
+                }
+
+            })
+        });
+    </script>
+
+    <script type="text/javascript" th:nonce="${cspNonce}">
+    $('#resetform').submit(function(e) {
+        e.preventDefault();
+        const resetUsername = $('#resetUsername').val();
+
+        $.ajax({
+            url: "/user/reset",
+            type: "POST",
+            data: { resetUsername: resetUsername }, // 不需要设置 contentType
+            success: function(postResponse) {
+                showMsgAndReload("重置密碼成功");
+                $("#uResetModal").modal('hide');
+            },
+            error: function(xhr, status, error) {
+                showMsg("重置密碼失敗");
+                $("#uResetModal").modal('hide');
+                console.error("POST Error:", error);
+            }
+        });
+    });
+    </script>
+
+    <script type="text/javascript" th:nonce="${cspNonce}">
+        $('#userUpdateForm').submit(function(e){
+            e.preventDefault();
+            const data={
+                id: getFieldVal($(this),'userId'),
+                name: getFieldVal($(this),'name'),
+                lastName: getFieldVal($(this),'LastName'),
+                firstName: getFieldVal($(this),'FirstName'),
+                role: getFieldVal($(this),'Role'),
+                depID: getFieldVal($(this),'DepID'),
+                status: getFieldVal($(this),'Status'),
+            }
+            $.ajax({
+                type: "POST",
+                contentType:"application/json;charset=utf-8",
+                data:JSON.stringify(data),
+                url: "/user/update",
+                success: () => {
+                    $("#uUpdateModal").modal('hide');
+                    showMsgAndReload('修改成功!')
+                },
+                error: (res) => {
+                    let errStr = '修改失敗!' + '\n';
+                    let obj = res.responseJSON.ErrorDetail;
+                    let values = Object.values(obj).map(function (value) {
+                        return value.join(",");
+                    });
+                    showMsg(errStr + values.join('、'));
+                }
+            })
+        })
+    </script>
+
+    <!-- Begin: Handle Add Form submit前登入帳號若6碼則前面補零 -->
+    <script type="text/javascript" th:nonce="${cspNonce}">
+    $('#addform').submit(function(e) {
+        const NAME_FORM_INDEX = 0;
+        e.preventDefault();
+        const inputname = document.getElementById('addname').value;
+        if(isNaN(inputname)){
+            showMsg("登入帳號請輸入純數字");
+            return false
+        }
+
+        if(inputname.length === 6){
+            document.getElementById('addname').value= "0"+inputname;
+        }
+        // get form data to check username in specific location exist or not
+        const formData = $(this).serializeArray();
+        const username = formData[NAME_FORM_INDEX].value;
+        const formElement = $(this);
+
+        $.ajax({
+            url: `/user/checkuserexist?username=${username}`,
+            type: 'GET',
+            dataType: 'json',
+            success: function(isUserExist) {
+                if (isUserExist) {
+                    showMsg(`此帳號已存在`);
+                    throw new Error('account already exists');
+                } else {
+                    const data = {
+                        name: getFieldVal(formElement, 'Name'),
+                        lastName: getFieldVal(formElement, 'LastName'),
+                        firstName: getFieldVal(formElement, 'FirstName'),
+                        role: getFieldVal(formElement, 'Role'),
+                        depID: getFieldVal(formElement, 'DepID')
+                    };
+
+                    $.ajax({
+                        url: '/user/add',
+                        type: 'POST',
+                        contentType: 'application/json',
+                        data: JSON.stringify(data),
+                        success: function() {
+                            $('#addUserModal').modal('hide');
+                            showMsgAndReload("新增成功");
+                        },
+                        error: function() {
+                            showMsg("新增失敗");
+                        }
+                    });
+                }
+            }
+        });
+    })
+   	</script>
+
+    <script th:nonce="${cspNonce}">
+        $('#userDeleteForm').submit(function(e) {
+            e.preventDefault();
+            $.ajax({
+                url: `/user?delUsername=${$("#delUsername").val()}`,
+                contentType: 'application/json',
+                type: 'DELETE',
+                success: function() {
+                    $('#uDeleteModal').modal('hide');
+                    showMsgAndReload("刪除成功");
+                },
+                error: function() {
+                    showMsg("刪除失敗");
+                }
+            })
+        });
+    </script>
+
+    <script th:nonce="${cspNonce}">
+        $('#addUserModal').on('hidden.bs.modal', function () {
+            $(this).find('form').trigger('reset');
+        })
+
+        $('#uUpdateModal').on('hidden.bs.modal', function () {
+            $(this).find('form').trigger('reset');
+        })
+    </script>
+    <!-- End: Handle Add Form 登入帳號若6碼則前面補零 -->
+
+    <!-- Begin: Handle Delete username data input -->
+    <script type="text/javascript" th:nonce="${cspNonce}">
+      $(document).on("click", ".openDelDialog", function () {
+        var theUsername = $(this).data('id');
+        $("#delUsername").val( theUsername );
+        document.getElementById("showDelName").innerHTML = theUsername;
+       });
+    </script>
+    <!-- End: Handle Delete username data input -->
+
+
+    <!-- Begin: Handle Reset userpwd data input -->
+    <script type="text/javascript" th:nonce="${cspNonce}">
+      $(document).on("click", ".openResetDialog", function () {
+        var theUsername = $(this).data('id');
+        $("#resetUsername").val( theUsername );
+        document.getElementById("showResetName").innerHTML = theUsername;
+       });
+    </script>
+    <!-- End: Handle Reset userpwd data input -->
+
+    <!-- 抓目前頁面userlist Table export to Excel -->
+    <script th:nonce="${cspNonce}">
+        let exportBtn = document.getElementById('exportBtn');
+        exportBtn.addEventListener('click', function(){
+            ExportToExcel('xlsx');
+        })
+        function ExportToExcel(type, fn, dl) {
+		    var maxrow = 5000;
+		    var localdate = new Date().toLocaleDateString('zh-TW').split( '/' ).join( '-' );
+		    var localtime = new Date().toLocaleTimeString('zh-TW', {hour12: false});
+		    var currDateTime = localdate + "-"+ localtime; //當天+當時
+		    var filename = "ubgir-userlist-"+currDateTime + '.xlsx';
+		    $.ajax({
+                    url: "/user/userexcellog",
+                    type: "GET",
+                    success: function(response) {
+                    },
+                    error: function(xhr, status, error) {
+                    }
+                });
+		  	//先換成不分頁datatable抓全部資料
+            var eltall = $('#dataTable_noSearch_3rd').DataTable({
+                destroy:true,
+                searching: false,
+            	paging: false
+            });	    
+            var elt =document.getElementById('dataTable_noSearch_3rd');
+            var wb = XLSX.utils.table_to_book(elt, { sheetRows:maxrow, sheet: "sheetOne", raw: true});
+          	//讓畫面換回來原本分頁的datatable
+            eltall = $('#dataTable_noSearch_3rd').DataTable({
+                destroy:true,
+                searching: false,
+            	paging: true
+            });
+            return dl ?
+                XLSX.write(wb, { bookType: type, bookSST: true, type: 'base64'}) :
+                XLSX.writeFile(wb, fn || (filename));
+        }
+    </script>
+
+    <script type="text/javascript" th:nonce="${cspNonce}">
+        let resetBtn = document.getElementById('resetBtn');
+        resetBtn.addEventListener('click', searchFormReset)
+    function searchFormReset(){
+
+        document.getElementById("userSearchForm").reset();
+        document.getElementById("searchName").value="";
+        document.getElementById("searchlastname").value="";
+        document.getElementById("searchFirstName").value="";
+        document.getElementById("searchAgentID").value="";
+        document.getElementById("searchDepID").value="";
+        document.getElementById("adduserrole").value="";
+        document.getElementById("searchExt").value="";
+        document.getElementById("searchStatus").value="";
+}
+</script>
+</body>
+
+</html>

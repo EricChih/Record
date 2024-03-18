@@ -1,0 +1,17 @@
+ub:
+    datasource:
+        db-1:
+            master:
+                host: 10.2.122.8
+                port: 3306
+                database: ubrecord
+                username: root
+                password: ENC(aWtF6Z7SepgpEd6sWjp8MauTK9DmSfRb)
+                pool:
+                    poolName: db1Master
+                    minimum-idle: 1
+                    maximum-pool-size: 10
+                    max-lifetime: 800000
+                    idle-timeout: 600000
+                    connection-timeout: 30000
+                    

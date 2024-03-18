@@ -1,0 +1,95 @@
+<!DOCTYPE html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-4.dtd">
+<html lang="zh-Hant-TW" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+
+	<sidebar th:fragment="sidebar">
+
+            <!-- Sidebar - Brand -->
+            <a class="sidebar-brand d-flex align-items-center justify-content-center" href="/user/all">
+                <div class="sidebar-brand-icon">
+					<img th:src="@{/assets/img/ub-logo.jpg}" width="50" />
+                </div>
+                <div class="sidebar-brand-text mx-3">錄音調聽平台</div>
+            </a>
+
+            <!-- Divider -->
+            <hr class="sidebar-divider my-0">
+
+            <!-- Begin: 人員管理Link -->
+            <li class="nav-item" sec:authorize="hasRole('superadmin') or hasRole('admin') or hasRole('manager')">
+                <a class="nav-link" href="/user/all">
+                    <i class="fas fa-fw fa-tachometer-alt"></i>
+                    <span>人員管理</span>
+				</a>
+            </li>
+			<!-- End: 人員管理Link -->
+			
+			<!-- Begin: 部門管理Link -->
+            <li class="nav-item" sec:authorize="hasRole('superadmin') or hasRole('manager')">
+                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseOne"
+                    aria-expanded="true" aria-controls="collapseOne">
+                    <i class="fas fa-fw fa-table"></i>
+                    <span>部門管理</span>
+                </a>
+                <div id="collapseOne" class="collapse" aria-labelledby="headingOne" data-parent="#accordionSidebar">
+                	<div class="bg-white py-2 collapse-inner rounded">
+                	    <a class="collapse-item" href="/dep/all">部門管理</a>
+                        <a class="collapse-item" href="/supaudit/all">調聽權限設定</a>
+                    </div>
+                </div>
+            </li>
+			<!-- End: 部門管理Link -->	
+			
+			<!-- Begin: 音檔年份管理Link -->
+            <li class="nav-item" sec:authorize="hasRole('superadmin') or hasRole('admin')">
+                <a class="nav-link" href="/recyear/all">
+                    <i class="fas fa-fw fa-hourglass-half"></i>
+                    <span>音檔年份管理</span>
+				</a>
+            </li>
+			<!-- End: 音檔年份管理Link -->				
+			
+			<!-- Begin: 音檔查詢Link -->
+            <li class="nav-item" sec:authorize="hasRole('superadmin') or hasRole('admin') or hasRole('supervisor')">
+                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseTwo"
+                    aria-expanded="true" aria-controls="collapseTwo">
+                    <i class="fas fa-fw fa-cog"></i>
+                    <span>音檔查詢</span>
+                </a>
+                <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
+                    <div class="bg-white py-2 collapse-inner rounded">
+                        <a class="collapse-item" href="/rec/all">音檔查詢</a>
+                        <a class="collapse-item" href="/hisrec/all">歷史音檔查詢</a>
+						<a class="collapse-item" href="/keeprec/all">永久音檔查詢</a>
+                    </div>
+                </div>
+            </li>
+			<!-- End: 音檔查詢Link -->
+			
+			<!-- Begin: 操作軌跡Link -->
+            <li class="nav-item">
+                <a class="nav-link" href="/log/all">
+                    <i class="fas fa-fw fa-tachometer-alt"></i>
+                    <span>操作軌跡</span>
+				</a>
+            </li>
+			<!-- End: 操作軌跡Link -->
+			
+            <!-- Begin: 系統設定Link -->
+            <li class="nav-item" sec:authorize="hasRole('superadmin') or hasRole('admin')">
+                <a class="nav-link" href="/sys/all">
+                    <i class="fas fa-fw fa-table"></i>
+                    <span>系統設定</span></a>
+            </li>
+			<!-- End: 系統設定Link -->
+			
+
+            <!-- Divider -->
+            <hr class="sidebar-divider d-none d-md-block">
+
+            <!-- Sidebar Toggler (Sidebar) -->
+            <div class="text-center d-none d-md-inline">
+                <button class="rounded-circle border-0" id="sidebarToggle"></button>
+            </div>
+
+	</sidebar> 
+</html>

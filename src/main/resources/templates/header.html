@@ -1,0 +1,78 @@
+<!DOCTYPE html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-4.dtd">
+<html lang="zh-Hant-TW" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+
+<header th:fragment="header">
+
+    <!-- Sidebar Toggle (Topbar) -->
+    <form class="form-inline">
+        <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3">
+            <i class="fa fa-bars"></i>
+        </button>
+    </form>
+
+    <!-- Begin: Logout Modal-->
+    <div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+         aria-hidden="true">
+
+        <!-- <form th:action="@{/login?msg=logout}" method="get" id="logout"> -->
+
+        <form id="logout_form" action="perform_logout" method="post">
+
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">確定要登出？</h5>
+                        <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">×</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">請選擇下方 "登出" 鍵來結束本次的連線</div>
+                    <div class="modal-footer">
+                        <input type="hidden" id="msg" name="msg" value="logout">
+                        <button class="btn btn-secondary" type="button" data-dismiss="modal">取消</button>
+                        <input class="btn btn-primary" type="submit" value="登出"/>
+                    </div>
+                </div>
+            </div>
+
+        </form>
+
+    </div>
+    <!-- End: Logout Modal-->
+
+    <!-- Topbar Navbar -->
+    <ul class="navbar-nav ml-auto">
+        <div class="topbar-divider d-none d-sm-block"></div>
+
+        <!-- Nav Item - User Information -->
+        <li class="nav-item dropdown no-arrow">
+            <a class="nav-link dropdown-toggle" style="color:white;" href="#" id="userDropdown" role="button"
+               data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                 	<span class="mr-2 d-none d-lg-inline text-white-600 small">                	     
+                 	    登入帳號資訊:
+                 		[<span style="text-transform:upppercase" sec:authentication="name">...</span>]
+                 		<span th:text="${loginuser.getLastName()}+ ' ' + ${loginuser.getFirstName()}+' ['+${loginuser.getLocationCN()}+']'"></span>
+                 		<span sec:authentication="principal.authorities">...</span>
+                 	</span>
+            </a>
+        </li>
+
+        <li class="nav-item dropdown no-arrow">
+            <a class="nav-link" style="color:white;" href="/pwd/user">
+                <span class="mr-2 d-none d-lg-inline text-white-600 small">[更改密碼]</span>
+            </a>
+        </li>
+
+        <li class="nav-item dropdown no-arrow">
+            <a class="nav-link" style="color:white;" href="#" data-toggle="modal" data-target="#logoutModal">
+                	<span class="mr-2 d-none d-lg-inline text-white-600 small">
+                    [登出]
+                    </span>
+            </a>
+        </li>
+
+    </ul>
+    <script th:src="@{/assets/js/inputUtils.js}" type="text/javascript"></script>
+</header>
+
+</html>
